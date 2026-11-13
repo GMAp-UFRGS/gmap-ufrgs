@@ -447,6 +447,103 @@
   \noindent #1\par\noindent #2\par}
 
 %---------------------------------------------------------------------
+% Assinatura no texto (bloco sem serifa, alinhado a direita)
+% (\assinatura e' do abntex2, com traco centralizado; nao e' alterado)
+%   \blocoassinatura[chaves]{Nome \\ Cargo \\ Grupo \\ Instituicao}
+%   chaves: imagem=arquivo (imagem da assinatura, acima do texto),
+%     altura=1.2cm (altura da imagem ou do espaco para assinar),
+%     linha (traco para assinatura a mao), posicao=direita|centro|esquerda,
+%     espaco=1cm (espaco vertical antes do bloco)
+%   Varias pessoas lado a lado (blocos centrados e distribuidos):
+%   \begin{assinaturas}[chaves]
+%     \blocoassinatura{...}
+%     \blocoassinatura{...}
+%   \end{assinaturas}
+%   \configurarassinatura{chaves} muda o padrao de todas as assinaturas.
+%---------------------------------------------------------------------
+\ExplSyntaxOn
+\tl_new:N   \l__gmap_ass_img_tl
+\tl_new:N   \l__gmap_ass_pos_tl
+\dim_new:N  \l__gmap_ass_altura_dim
+\skip_new:N \l__gmap_ass_espaco_skip
+\bool_new:N \l__gmap_ass_linha_bool
+\bool_new:N \l__gmap_ass_grupo_bool
+
+\keys_define:nn { gmap/assinatura }
+  {
+    imagem  .tl_set:N   = \l__gmap_ass_img_tl ,
+    altura  .dim_set:N  = \l__gmap_ass_altura_dim ,
+    altura  .initial:n  = 1.2cm ,
+    linha   .bool_set:N = \l__gmap_ass_linha_bool ,
+    linha   .default:n  = true ,
+    espaco  .skip_set:N = \l__gmap_ass_espaco_skip ,
+    espaco  .initial:n  = 1cm ,
+    posicao .choices:nn =
+      { direita , centro , esquerda , right , center , left }
+      {
+        \tl_set:Ne \l__gmap_ass_pos_tl
+          { \clist_item:nn { r , c , l , r , c , l } { \l_keys_choice_int } }
+      } ,
+    posicao .initial:n  = direita ,
+  }
+
+% o bloco: [imagem ou espaco] [traco] linhas de texto, numa tabela de uma coluna
+\cs_new_protected:Npn \__gmap_ass_bloco:n #1
+  {
+    \group_begin:
+    \linespread { 1 } \small \sffamily
+    \use:e
+      {
+        \exp_not:N \begin { tabular } [ t ]
+          { @ { } \l__gmap_ass_pos_tl @ { } }
+      }
+      \tl_if_empty:NTF \l__gmap_ass_img_tl
+        { \bool_if:NT \l__gmap_ass_linha_bool { \rule { 0pt } { \l__gmap_ass_altura_dim } \\ } }
+        { \includegraphics [ height = \l__gmap_ass_altura_dim ] { \l__gmap_ass_img_tl } \\ }
+      \bool_if:NT \l__gmap_ass_linha_bool { \specialrule { 0.4pt } { 0pt } { 2pt } }
+      #1
+    \end { tabular }
+    \group_end:
+  }
+
+\NewDocumentCommand \blocoassinatura { O{} m }
+  {
+    \group_begin:
+    \keys_set:nn { gmap/assinatura } {#1}
+    \bool_if:NTF \l__gmap_ass_grupo_bool
+      {
+        \__gmap_ass_bloco:n {#2}
+        \hspace* { \fill }
+      }
+      {
+        \par
+        \vspace { \l__gmap_ass_espaco_skip }
+        \noindent
+        \use:e { \exp_not:N \makebox [ \exp_not:N \linewidth ] [ \l__gmap_ass_pos_tl ] }
+          { \__gmap_ass_bloco:n {#2} }
+        \par \bigskip
+      }
+    \group_end:
+    \ignorespaces
+  }
+
+\NewDocumentEnvironment { assinaturas } { O{} }
+  {
+    \par
+    \keys_set:nn { gmap/assinatura } { posicao = centro , #1 }
+    \vspace { \l__gmap_ass_espaco_skip }
+    \bool_set_true:N \l__gmap_ass_grupo_bool
+    \skip_set:Nn \parfillskip { 0pt }
+    \noindent \hspace* { \fill }
+    \ignorespaces
+  }
+  { \par \bigskip }% cada \blocoassinatura ja deixa um \fill depois de si
+
+\NewDocumentCommand \configurarassinatura { m }
+  { \keys_set:nn { gmap/assinatura } {#1} }
+\ExplSyntaxOff
+
+%---------------------------------------------------------------------
 % Folha de controle: documento, revisao, assinaturas, aviso
 %---------------------------------------------------------------------
 \newcommand\gmap@pessoa[5]{%

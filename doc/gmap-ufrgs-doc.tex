@@ -61,7 +61,7 @@ Lua\LaTeX{} e Xe\LaTeX{} também funcionam.
 \titulo{Título do relatório}
 \local{Porto Alegre}
 \data{5 de novembro de 2026}
-\addautor{Ana da Silva}{Eng. Mecânica}{CREA-RS 000001}
+\addautor{Beltrana de Tal}{Eng. Mecânica}{CREA-RS 000001}
 \rodapeprojeto{PROJETO EXEMPLO}
 \begin{document}
 \imprimircapa
@@ -119,6 +119,36 @@ confidencialidade se a opção estiver ativa), \cs{confidencial} (aviso avulso),
 \cs{fecharcarta}\{nome\}\{cargo\} (fecho da carta). Os demais elementos
 (\texttt{resumo}, \cs{listoffigures*}, \cs{tableofcontents*}, \texttt{apendicesenv},
 \texttt{anexosenv}, \cs{fonte}, \cs{nota}) são os do \pkg{abntex2}.
+
+\section{Assinaturas no texto}
+\cs{blocoassinatura} imprime um bloco de assinatura sem serifa, alinhado à
+direita (estilo usado nos documentos do GMAp), em qualquer ponto do texto ---
+por exemplo, ao final de um relatório ou de uma carta. As linhas são
+separadas por \cs{\textbackslash}:
+\begin{lstlisting}
+\blocoassinatura{Prof. Fulano de Tal\\ Coordenador do projeto\\
+  Grupo de Mecânica Aplicada\\
+  Prof. Titular -- Depto. Eng. Mecânica -- UFRGS}
+\end{lstlisting}
+Para várias pessoas lado a lado (blocos centrados e distribuídos na largura),
+use o ambiente \texttt{assinaturas}:
+\begin{lstlisting}
+\begin{assinaturas}[linha]
+  \blocoassinatura{Prof. Fulano de Tal\\ Coordenador do projeto}
+  \blocoassinatura[imagem=assin-beltrana]{Beltrana de Tal\\ Pesquisadora}
+\end{assinaturas}
+\end{lstlisting}
+Chaves (no comando, no ambiente ou, para todo o documento, em
+\cs{configurarassinatura}\{chaves\}):
+\begin{itemize}
+  \item \texttt{imagem=}\textit{arquivo}: imagem da assinatura, acima do texto;
+  \item \texttt{altura=1.2cm}: altura da imagem ou do espaço para assinar;
+  \item \texttt{linha}: traço para assinatura à mão, acima do nome;
+  \item \texttt{posicao=direita|centro|esquerda} (padrão: direita; no ambiente
+    \texttt{assinaturas}, centro);
+  \item \texttt{espaco=1cm}: espaço vertical antes do bloco.
+\end{itemize}
+O \cs{assinatura} do \pkg{abntex2} (traço centralizado) continua disponível.
 
 \section{Figuras e tabelas (ABNT)}
 A legenda vai \emph{acima} e a fonte \emph{abaixo}:
@@ -232,7 +262,9 @@ espaço em branco.
     \texttt{confidencial}, \texttt{preliminar}, \texttt{sans} e os perfis
     \texttt{abnt} e \texttt{classico} (aceito também como \texttt{petrobras},
     nome usado internamente antes da publicação); comandos \cs{figura},
-    \cs{posicaofiguras}, \cs{tamanhofiguras} e \cs{gerenciatecnica}.
+    \cs{posicaofiguras}, \cs{tamanhofiguras}, \cs{gerenciatecnica},
+    \cs{blocoassinatura} (com o ambiente \texttt{assinaturas} e
+    \cs{configurarassinatura}).
 \end{description}
 
 \selectlanguage{english}
@@ -250,7 +282,11 @@ switches to the former GMAp layout (Latin Modern Sans, 2\,cm side margins,
 single spacing, numeric citations, captions below figures, revision on the
 cover, dd/mm/yyyy dates). \cs{figura}[keys]\{file\}\{caption\} inserts an
 image at scale 1 with an automatic \texttt{fig:}\textit{file} label (the starred
-form places it exactly there). Installation: through \texttt{tlmgr} or MiKTeX,
+form places it exactly there). \cs{blocoassinatura}[keys]\{line 1
+\textbackslash\textbackslash{} line 2 \ldots\} prints a right-aligned sans-serif
+signature block anywhere in the text; several people go side by side inside
+the \texttt{assinaturas} environment (keys: \texttt{imagem}, \texttt{altura},
+\texttt{linha}, \texttt{posicao}, \texttt{espaco}). Installation: through \texttt{tlmgr} or MiKTeX,
 or by copying the \texttt{.cls}/\texttt{.sty} files next to your document.
 License: LPPL 1.3c or later (code and documentation). The UFRGS and GMAp
 logos shipped with the class are trademarks, not covered by the LPPL: they may

@@ -59,6 +59,22 @@ sans
 \aprovador{nome}{titulo}{registro}
 \aprovador[imagem da assinatura]{nome}{titulo}{registro}
 
+# Assinatura no texto
+\blocoassinatura{linhas}
+\blocoassinatura[chaves%keyvals]{linhas}
+\begin{assinaturas}
+\begin{assinaturas}[chaves%keyvals]
+\end{assinaturas}
+\configurarassinatura{chaves%keyvals}
+
+#keyvals:\blocoassinatura,\begin{assinaturas},\configurarassinatura
+imagem=%<imagefile%>
+altura=##L
+linha#true,false
+posicao=#direita,centro,esquerda
+espaco=##L
+#endkeyvals
+
 # Logos
 \logoesquerda{imagefile}
 \logodireita{imagefile}

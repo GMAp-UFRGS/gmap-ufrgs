@@ -56,6 +56,16 @@ warning only if it does not fit), with the automatic label `fig:<file>`;
 `\figura[0.6]{file}{caption}`, makes the image 60% of the text width;
 `\tamanhofiguras{0.8}` sets that default for every figure without its own size.
 
+Signatures
+----------
+`\blocoassinatura[keys]{Name \\ Role \\ Group \\ Institution}` prints a
+right-aligned sans-serif signature block anywhere in the text. For several
+people side by side, put the blocks inside
+`\begin{assinaturas} ... \end{assinaturas}`. Keys: `imagem` (signature image),
+`altura`, `linha` (line for a handwritten signature), `posicao`
+(`direita`/`centro`/`esquerda`) and `espaco`; `\configurarassinatura{keys}`
+sets document-wide defaults.
+
 Requirements
 ------------
 LaTeX 2022-06-01 or newer (TeX Live 2022+ or an up-to-date MiKTeX) with
