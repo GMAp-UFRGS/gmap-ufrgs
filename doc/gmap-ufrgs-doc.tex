@@ -1,0 +1,262 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[htt]{hyphenat}% hifeniza \texttt nas tabelas (avisos de fonte inofensivos)
+\usepackage[english,brazil]{babel}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{booktabs,longtable,array}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=black,urlcolor=blue!50!black]{hyperref}
+
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,breaklines=true,
+  frame=single,showstringspaces=false,extendedchars=true,
+  literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+           {ã}{{\~a}}1 {õ}{{\~o}}1 {ç}{{\c c}}1 {ê}{{\^e}}1 {â}{{\^a}}1
+           {Á}{{\'A}}1 {É}{{\'E}}1 {Ç}{{\c C}}1}
+\newcommand{\cs}[1]{\texttt{\textbackslash #1}}
+\newcommand{\pkg}[1]{\texttt{#1}}
+
+\title{A classe \pkg{gmap-ufrgs}\\\large Relatórios técnicos do GMAp/UFRGS conforme a ABNT}
+\author{Boris N. Rojo Tanzi}
+\date{v0.0 -- 2026/11/13\\[1ex]\small\url{https://github.com/GMAp-UFRGS/gmap-ufrgs}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\pkg{gmap-ufrgs} é uma classe \LaTeX{} baseada em \pkg{abntex2} para os
+relatórios técnicos, notas técnicas e cartas do Grupo de Mecânica Aplicada
+(GMAp) da UFRGS. Os dados de cada projeto (equipe, processos, rodapé,
+assinaturas) são informados por comandos no documento; nada específico de
+um projeto está dentro da classe. Português é o idioma padrão; inglês está
+disponível pela opção \texttt{english}. \emph{English summary in
+Section~\ref{sec:en}.}
+\end{abstract}
+
+\tableofcontents
+
+\section{Instalação}
+\begin{itemize}
+  \item \textbf{Distribuição \TeX}: instale o pacote \pkg{gmap-ufrgs} pelo
+    \texttt{tlmgr} (\TeX{} Live) ou pelo console do MiK\TeX.
+  \item \textbf{Manual}: copie \texttt{gmap-ufrgs.cls}, os \texttt{.sty} e os
+    logos (\texttt{gmap-logo-*}) para a pasta do seu arquivo mestre, ou para
+    \texttt{TEXMFHOME/tex/latex/gmap-ufrgs/} (e atualize o banco de nomes).
+  \item \textbf{Repositório Git}: execute \texttt{install.ps1} (Windows) ou
+    \texttt{install.sh} (Linux/macOS), que também instalam o autocompletar do
+    TeXstudio.
+\end{itemize}
+Requisitos: \LaTeX{} 2022-06-01 ou posterior (\TeX{} Live 2022 ou MiK\TeX{}
+atualizado), com \pkg{abntex2}. Motor recomendado: pdf\LaTeX{} + Bib\TeX{};
+Lua\LaTeX{} e Xe\LaTeX{} também funcionam.
+
+\section{Exemplo mínimo}
+\begin{lstlisting}
+\documentclass{gmap-ufrgs}
+\projeto{Projeto Exemplo}
+\numerodoc{GMAp-RT-000/2026}
+\titulo{Título do relatório}
+\local{Porto Alegre}
+\data{5 de novembro de 2026}
+\addautor{Ana da Silva}{Eng. Mecânica}{CREA-RS 000001}
+\rodapeprojeto{PROJETO EXEMPLO}
+\begin{document}
+\imprimircapa
+\imprimirfolhadecontrole
+\tableofcontents*
+\textual
+\chapter{Introdução}
+...
+\end{document}
+\end{lstlisting}
+
+\section{Opções da classe}
+\begin{longtable}{@{}>{\ttfamily}l p{10cm}@{}}
+\toprule
+relatorio & (padrão) capa completa, folha de controle, capítulos.\\
+notatecnica & formato curto: bloco de título na primeira página, seções como nível superior (sem capítulos).\\
+carta & papel timbrado: \cs{imprimircapa} imprime local/data, destinatário, A/C e assunto.\\
+english & textos fixos em inglês (idioma ativo no início do documento).\\
+confidencial & imprime o aviso de confidencialidade na folha de controle.\\
+preliminar & marca \textit{PRELIMINAR} no cabeçalho e no rodapé.\\
+sans & fonte sem serifa como padrão.\\
+abnt & (padrão) perfil ABNT: margens 3/2\,cm, espaço 1,5, citação autor-data, legenda acima da figura.\\
+classico & perfil do formato anterior do GMAp: Latin Modern Sans no documento inteiro, margens laterais de 2\,cm, espaço simples, citação numérica \texttt{[1]}, legenda abaixo da figura (\textbf{Figura 1:} em negrito), capa com revisão, data \texttt{dd/mm/aaaa} e rodapé com o nome do projeto. Não use \texttt{resumo}/\texttt{abstract}. (O nome antigo, \texttt{petrobras}, continua aceito.)\\
+\bottomrule
+\end{longtable}
+
+\section{Comandos de dados}
+Vêm do \pkg{abntex2}: \cs{titulo}, \cs{autor}, \cs{data}, \cs{local},
+\cs{instituicao}. Acrescentados pela classe:
+
+\begin{longtable}{@{}>{\ttfamily\raggedright\arraybackslash}p{7.2cm} p{8.3cm}@{}}
+\toprule
+\textbackslash projeto\{texto\} & nome do projeto (capa).\\
+\textbackslash tipodoc\{texto\} & tipo do documento (padrão: Relatório Técnico).\\
+\textbackslash numerodoc\{texto\} & número do documento.\\
+\textbackslash revisao\{texto\} & revisão atual.\\
+\textbackslash subtitulo\{texto\} & subtítulo.\\
+\textbackslash addautor[img]\{nome\}\allowbreak\{titulação\}\allowbreak\{registro\} & adiciona um autor (quantos forem necessários); \texttt{img} é opcional: arquivo de imagem da assinatura.\\
+\textbackslash verificador[img]\{nome\}\{tit.\}\{reg.\} & verificador.\\
+\textbackslash aprovador[img]\{nome\}\{tit.\}\{reg.\} & aprovador.\\
+\textbackslash equipe\{texto\} & equipe (use \textbackslash\textbackslash{} entre linhas).\\
+\textbackslash codigosprojeto\{texto\} & processo, contrato etc., abaixo da equipe na capa.\\
+\textbackslash gerenciatecnica\{texto\} & gerência técnica solicitante, abaixo dos códigos na capa (perfil \texttt{classico}).\\
+\textbackslash rodapeprojeto\{texto\} & texto do rodapé de todas as páginas (no perfil \texttt{classico}, se omitido, usa o \cs{projeto} em maiúsculas).\\
+\textbackslash gmapendereco\{texto\} & endereço na capa (padrão: sede do GMAp).\\
+\textbackslash destinatario\{texto\}, \textbackslash aoscuidados\{texto\}, \textbackslash assunto\{texto\} & dados da carta.\\
+\textbackslash logoesquerda\{arq\}, \textbackslash logodireita\{arq\}, \textbackslash logotopoesquerda\{arq\} & trocam os logos da capa e do cabeçalho.\\
+\bottomrule
+\end{longtable}
+
+\section{Comandos de impressão}
+\cs{imprimircapa} (capa; na nota técnica e na carta, o bloco inicial),
+\cs{imprimirfolhadecontrole} (dados do documento, assinaturas e aviso de
+confidencialidade se a opção estiver ativa), \cs{confidencial} (aviso avulso),
+\cs{fecharcarta}\{nome\}\{cargo\} (fecho da carta). Os demais elementos
+(\texttt{resumo}, \cs{listoffigures*}, \cs{tableofcontents*}, \texttt{apendicesenv},
+\texttt{anexosenv}, \cs{fonte}, \cs{nota}) são os do \pkg{abntex2}.
+
+\section{Figuras e tabelas (ABNT)}
+A legenda vai \emph{acima} e a fonte \emph{abaixo}:
+\begin{lstlisting}
+\begin{figure}[htb]
+  \caption{Legenda.}\label{fig:x}
+  \centering
+  \includegraphics[width=.6\linewidth]{arquivo}
+  \fonte{Elaborada pelos autores.}
+\end{figure}
+\end{lstlisting}
+
+\subsection{Figuras automáticas: \cs{figura}}
+Uma linha substitui o ambiente inteiro:
+\begin{lstlisting}
+\figura{viga}{Viga analisada.}             % flutuante (htbp)
+\figura*{viga}{Viga analisada.}            % exatamente aqui ([H])
+\figura[fonte={Elaborada pelos autores.}, escala=0.8]{viga}{Viga.}
+\figura[0.5]{viga}{Viga.}                  % 50% da largura do texto
+\end{lstlisting}
+\begin{itemize}
+  \item A imagem entra em \textbf{escala 1} (tamanho original). Só se não
+    couber na área de texto é reduzida, com um aviso no \texttt{.log}.
+  \item O rótulo é automático: \texttt{fig:}\textit{nome do arquivo sem pasta e
+    extensão} (\texttt{\textbackslash ref\{fig:viga\}}). Ao usar o mesmo
+    arquivo duas vezes, dê \texttt{rotulo=fig:outro}.
+  \item As imagens são procuradas na pasta do documento e em \texttt{fig/}
+    e \texttt{figuras/}.
+  \item Perfil ABNT: legenda acima e fonte abaixo; perfil \texttt{classico}:
+    legenda abaixo da imagem.
+  \item Chaves: \texttt{fonte}, \texttt{rotulo}, \texttt{pos} (p.\,ex.\
+    \texttt{pos=t}), \texttt{tamanho}, \texttt{escala}, \texttt{largura},
+    \texttt{altura} e qualquer chave do \cs{includegraphics} (\texttt{angle},
+    \texttt{trim}, \texttt{page}, \ldots).
+  \item Tamanho rápido: \texttt{tamanho=0.6}, ou só \texttt{[0.6]}, faz a
+    imagem ocupar 60\,\% da largura do texto.
+  \item \cs{posicaofiguras}\{H\} muda a posição padrão de todas as figuras.
+  \item \cs{tamanhofiguras}\{0.8\} faz toda figura sem tamanho próprio ocupar
+    80\,\% da largura do texto; \cs{tamanhofiguras}\{\} volta à escala 1.
+\end{itemize}
+
+\section{Referências}
+Use \cs{cite} (autor-data entre parênteses) e \cs{citeonline} (autor no
+texto), com \cs{bibliography}\allowbreak\{arquivo\}\allowbreak{} (o estilo \texttt{abntex2-alf} é
+carregado pela classe). Para sobrenomes compostos aparecerem como
+\textsc{Da Silva} (e não só \textsc{Silva}), cole as palavras com um grupo
+vazio no \texttt{.bib}:
+\begin{lstlisting}
+author = {Da{ }Silva, Ana and Souza, Carlos}
+\end{lstlisting}
+Resultado: \texttt{(DA SILVA; SOUZA, 2020)} na citação e \texttt{DA SILVA, A.}
+na lista de referências.
+
+\section{Pacotes opcionais}
+\subsection{\pkg{gmap-math}}
+Atalhos de vetores (\cs{av}\ldots\cs{zv}, negrito), matrizes
+(\cs{Am}\ldots\cs{Zm}; a identidade é \cs{IM}), letras gregas abreviadas
+(\cs{alf}, \cs{bt}, \cs{lbd}, \ldots), vetores gregos (\cs{sigmav}, \cs{thetav},
+\ldots) e derivadas (\cs{dpar}, \cs{ddpar}, \cs{dparxy}, \cs{dsf}, \cs{meio}).
+Os nomes são curtos e genéricos (\cs{ds}, \cs{ol}, \cs{bt}, \cs{eps}, \ldots)
+e podem coincidir com os de outros pacotes. Nenhum comando existente é
+sobrescrito: se o nome já estiver definido quando \pkg{gmap-math} é carregado,
+é emitido um aviso e o original é mantido (p.\,ex.\ \cs{dv} do \pkg{physics}).
+Se outro pacote carregado \emph{depois} definir o mesmo nome com
+\cs{newcommand}, o erro será desse pacote; carregue-o antes de
+\pkg{gmap-math}.
+
+\subsection{\pkg{gmap-codigo}}
+Ambientes \texttt{code}, \texttt{tabelaverb}, \texttt{linhacomando} e
+\texttt{comandos} (via \pkg{fancyvrb}) e o estilo \texttt{gmappython} do
+\pkg{listings}.
+
+\section{Listas auxiliares}
+Ambientes \texttt{listalfa} (\textit{(a), (b)\ldots}), \texttt{listtraco}
+(travessão) e \texttt{checklist} (caixas), e os comandos de tabela
+\cs{cinza} (célula) e \cs{linhacinza} (linha) com fundo cinza.
+
+\section{Logos e licença}\label{sec:logos}
+O código e a documentação são distribuídos sob a LPPL 1.3c ou posterior.
+Os logos \texttt{gmap-logo-ufrgs.png} (capa e cabeçalho) e
+\texttt{gmap-logo-gmap.pdf} são marcas da UFRGS e do GMAp, distribuídos junto
+com a classe pelo próprio GMAp/UFRGS para que o leiaute institucional funcione
+sem configuração. Eles \emph{não} são cobertos pela LPPL:
+\begin{itemize}
+  \item podem ser redistribuídos sem modificação como parte deste pacote;
+  \item seu uso é reservado a documentos da UFRGS/GMAp e deve seguir as
+    normas da marca (\url{https://www.ufrgs.br/site/marca-ufrgs/});
+  \item fora da UFRGS, troque-os por outros com \cs{logoesquerda},
+    \cs{logodireita} e \cs{logotopoesquerda}.
+\end{itemize}
+Se um arquivo de logo não for encontrado, a classe emite um aviso e deixa o
+espaço em branco.
+
+\section{Limitações conhecidas}
+\begin{itemize}
+  \item Motor recomendado: pdf\LaTeX{}. Lua\LaTeX{} e Xe\LaTeX{} compilam,
+    mas são menos testados.
+  \item Margens ABNT (3\,cm esquerda, 2\,cm direita); margens laterais de
+    2\,cm só com a opção \texttt{classico}.
+  \item Com \texttt{english}, \texttt{\textbackslash citeonline} ainda usa
+    ``e'' entre autores (texto fixo do \pkg{abntex2cite}).
+  \item Nomes de comando não podem começar por \texttt{end} (restrição do
+    \LaTeX{}); por isso o comando da carta é \cs{destinatario}.
+\end{itemize}
+
+\section{Histórico}
+\begin{description}
+  \item[v0.0 (2026/11/13)] Primeira versão pública (CTAN): classe,
+    \pkg{gmap-math} e \pkg{gmap-codigo}; opções \texttt{relatorio},
+    \texttt{notatecnica}, \texttt{carta}, \texttt{english},
+    \texttt{confidencial}, \texttt{preliminar}, \texttt{sans} e os perfis
+    \texttt{abnt} e \texttt{classico} (aceito também como \texttt{petrobras},
+    nome usado internamente antes da publicação); comandos \cs{figura},
+    \cs{posicaofiguras}, \cs{tamanhofiguras} e \cs{gerenciatecnica}.
+\end{description}
+
+\selectlanguage{english}
+\section{English summary}\label{sec:en}
+\pkg{gmap-ufrgs} is an \pkg{abntex2}-based class for technical reports,
+technical notes and letters of GMAp/UFRGS. Use \texttt{\textbackslash
+documentclass[english]\{gmap-ufrgs\}} for English fixed texts (cover, control
+sheet, headings). Document data are set with \cs{projeto}, \cs{numerodoc},
+\cs{titulo}, \cs{addautor}, \cs{verificador}, \cs{aprovador}, \cs{equipe},
+\cs{codigosprojeto} and \cs{rodapeprojeto}; print the cover with
+\cs{imprimircapa} and the control sheet (data, signatures, optional
+confidentiality notice) with \cs{imprimirfolhadecontrole}. Figure captions go
+above and the source line (\cs{fonte}) below. The \texttt{classico} option
+switches to the former GMAp layout (Latin Modern Sans, 2\,cm side margins,
+single spacing, numeric citations, captions below figures, revision on the
+cover, dd/mm/yyyy dates). \cs{figura}[keys]\{file\}\{caption\} inserts an
+image at scale 1 with an automatic \texttt{fig:}\textit{file} label (the starred
+form places it exactly there). Installation: through \texttt{tlmgr} or MiKTeX,
+or by copying the \texttt{.cls}/\texttt{.sty} files next to your document.
+License: LPPL 1.3c or later (code and documentation). The UFRGS and GMAp
+logos shipped with the class are trademarks, not covered by the LPPL: they may
+be redistributed unmodified with this package, but are reserved for UFRGS/GMAp
+documents; others should replace them with \cs{logoesquerda},
+\cs{logodireita} and \cs{logotopoesquerda} (see Section~\ref{sec:logos}).
+Repository and bug tracker: \url{https://github.com/GMAp-UFRGS/gmap-ufrgs}.
+
+\end{document}

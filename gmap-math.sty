@@ -1,0 +1,91 @@
+%%
+%% This is file `gmap-math.sty', part of the gmap-ufrgs bundle.
+%% Copyright (C) 2026 Boris N. Rojo Tanzi and GMAp/UFRGS
+%% LaTeX Project Public License, version 1.3c or later.
+%% Maintainer: Boris N. Rojo Tanzi. See gmap-ufrgs.cls for the full notice.
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{gmap-math}[2026/11/13 v0.0 Macros de matematica (vetores, matrizes, derivadas) do GMAp]
+
+\RequirePackage{amsmath,amssymb,bm}
+\RequirePackage{etoolbox}
+
+% \gmap@new\cmd[n]{def}: como \newcommand, mas se \cmd ja existe (definido
+% por outro pacote) emite aviso e preserva o original em vez de dar erro.
+\newcommand\gmap@descarte{}
+\newcommand\gmap@new[1]{%
+  \ifdefined#1%
+    \PackageWarningNoLine{gmap-math}{\string#1 ja existe; mantido}%
+    \expandafter\@firstoftwo
+  \else
+    \expandafter\@secondoftwo
+  \fi
+  {\renewcommand\gmap@descarte}{\newcommand#1}}
+
+% Define \<x>v (vetor, negrito) e \<X>m (matriz, negrito) sem sobrescrever
+% comandos existentes: se o nome ja existe, emite aviso e preserva o original.
+\newcommand\gmap@defbold[2]{% #1 = nome do comando, #2 = letra
+  \ifcsundef{#1}%
+    {\csdef{#1}{\ensuremath{\bm{#2}}}}%
+    {\PackageWarningNoLine{gmap-math}{\@backslashchar#1 ja existe; mantido}}}
+
+\newcommand\gmap@defvetores{%
+  \gmap@defbold{av}{a}\gmap@defbold{bv}{b}\gmap@defbold{cv}{c}\gmap@defbold{dv}{d}%
+  \gmap@defbold{ev}{e}\gmap@defbold{fv}{f}\gmap@defbold{gv}{g}\gmap@defbold{hv}{h}%
+  \gmap@defbold{iv}{i}\gmap@defbold{jv}{j}\gmap@defbold{kv}{k}\gmap@defbold{lv}{l}%
+  \gmap@defbold{mv}{m}\gmap@defbold{nv}{n}\gmap@defbold{ov}{o}\gmap@defbold{pv}{p}%
+  \gmap@defbold{qv}{q}\gmap@defbold{rv}{r}\gmap@defbold{sv}{s}\gmap@defbold{tv}{t}%
+  \gmap@defbold{uv}{u}\gmap@defbold{vv}{v}\gmap@defbold{wv}{w}\gmap@defbold{xv}{x}%
+  \gmap@defbold{yv}{y}\gmap@defbold{zv}{z}}
+\newcommand\gmap@defmatrizes{%
+  \gmap@defbold{Am}{A}\gmap@defbold{Bm}{B}\gmap@defbold{Cm}{C}\gmap@defbold{Dm}{D}%
+  \gmap@defbold{Em}{E}\gmap@defbold{Fm}{F}\gmap@defbold{Gm}{G}\gmap@defbold{Hm}{H}%
+  \gmap@defbold{Jm}{J}\gmap@defbold{Km}{K}\gmap@defbold{Lm}{L}%
+  \gmap@defbold{Mm}{M}\gmap@defbold{Nm}{N}\gmap@defbold{Om}{O}\gmap@defbold{Pm}{P}%
+  \gmap@defbold{Qm}{Q}\gmap@defbold{Rm}{R}\gmap@defbold{Sm}{S}\gmap@defbold{Tm}{T}%
+  \gmap@defbold{Um}{U}\gmap@defbold{Vm}{V}\gmap@defbold{Wm}{W}\gmap@defbold{Xm}{X}%
+  \gmap@defbold{Ym}{Y}\gmap@defbold{Zm}{Z}}
+\gmap@defvetores
+\gmap@defmatrizes
+% \Im ja e' a parte imaginaria; a matriz identidade tem nome proprio
+\gmap@new{\IM}{\ensuremath{\bm{I}}}
+
+% Abreviacoes de letras gregas
+\gmap@new{\alf}{\ensuremath{\alpha}}
+\gmap@new{\bt}{\ensuremath{\beta}}
+\gmap@new{\lbd}{\ensuremath{\lambda}}
+\gmap@new{\om}{\ensuremath{\omega}}
+\gmap@new{\sg}{\ensuremath{\sigma}}
+\gmap@new{\eps}{\ensuremath{\epsilon}}
+\gmap@new{\gm}{\ensuremath{\gamma}}
+\gmap@new{\veps}{\ensuremath{\varepsilon}}
+\gmap@new{\tht}{\ensuremath{\theta}}
+
+% Vetores em letras gregas (negrito)
+\gmap@new{\gmv}{\ensuremath{\bm{\gamma}}}
+\gmap@new{\omv}{\ensuremath{\bm{\omega}}}
+\gmap@new{\xiv}{\ensuremath{\bm{\xi}}}
+\gmap@new{\etav}{\ensuremath{\bm{\eta}}}
+\gmap@new{\lbdv}{\ensuremath{\bm{\lambda}}}
+\gmap@new{\nuv}{\ensuremath{\bm{\nu}}}
+\gmap@new{\epsv}{\ensuremath{\bm{\epsilon}}}
+\gmap@new{\sigmav}{\ensuremath{\bm{\sigma}}}
+\gmap@new{\omegav}{\ensuremath{\bm{\omega}}}
+\gmap@new{\phiv}{\ensuremath{\bm{\phi}}}
+\gmap@new{\thetav}{\ensuremath{\bm{\theta}}}
+\gmap@new{\Phiv}{\ensuremath{\bm{\Phi}}}
+\gmap@new{\Psiv}{\ensuremath{\bm{\Psi}}}
+\gmap@new{\Gammav}{\ensuremath{\bm{\Gamma}}}
+\gmap@new{\Omegav}{\ensuremath{\bm{\Omega}}}
+
+% Diversos
+\gmap@new{\ds}{\displaystyle}
+\gmap@new{\dsf}{\displaystyle\frac}
+\gmap@new{\meio}{\dsf{1}{2}}
+\gmap@new{\ol}{\overline}
+\gmap@new{\modulo}[1]{\left| #1 \right|}
+\gmap@new{\dpar}[2]{\dsf{\partial #1}{\partial #2}}
+\gmap@new{\ddpar}[2]{\dsf{\partial^2 #1}{\partial #2^2}}
+\gmap@new{\dparxy}[3]{\dsf{\partial^2 #1}{\partial #2\partial #3}}
+
+\endinput

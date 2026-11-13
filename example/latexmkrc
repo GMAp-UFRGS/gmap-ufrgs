@@ -1,0 +1,3 @@
+# Compila sem instalar a classe (usa os arquivos de ..)
+$ENV{TEXINPUTS} = '..//' . $search_path_separator . ($ENV{TEXINPUTS} // '');
+$pdf_mode = 1;

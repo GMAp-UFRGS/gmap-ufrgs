@@ -1,0 +1,28 @@
+% Exemplo minimo da classe gmap-ufrgs. Compile: latexmk -pdf exemplo-minimo.tex
+% (dados ficticios)
+\documentclass{gmap-ufrgs}
+
+\projeto{Projeto Exemplo}
+\numerodoc{GMAp-RT-000/2026}
+\titulo{Exemplo M\'inimo de Relat\'orio T\'ecnico}
+\local{Porto Alegre}
+\data{5 de novembro de 2026}
+\addautor{Ana da Silva}{Eng. Mec\^anica}{CREA-RS 000001}
+\rodapeprojeto{PROJETO EXEMPLO}
+
+\begin{document}
+\imprimircapa
+\imprimirfolhadecontrole
+\tableofcontents*
+\cleardoublepage
+\textual
+\chapter{Introdu\c{c}\~ao}
+Texto de exemplo.
+
+\begin{figure}[htb]
+  \caption{Legenda acima da figura.}
+  \centering
+  \fbox{\rule{0pt}{2cm}\rule{4cm}{0pt}}
+  \fonte{Elaborada pelos autores.}
+\end{figure}
+\end{document}
