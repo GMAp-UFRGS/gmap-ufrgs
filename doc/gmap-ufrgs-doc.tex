@@ -21,7 +21,7 @@
 
 \title{A classe \pkg{gmap-ufrgs}\\\large Relatórios técnicos do GMAp/UFRGS conforme a ABNT}
 \author{Boris N. Rojo Tanzi}
-\date{v0.0 -- 2026/11/13\\[1ex]\small\url{https://github.com/GMAp-UFRGS/gmap-ufrgs}}
+\date{v0.1 -- 2026/11/14\\[1ex]\small\url{https://github.com/GMAp-UFRGS/gmap-ufrgs}}
 
 \begin{document}
 \maketitle
@@ -42,13 +42,18 @@ Section~\ref{sec:en}.}
 \begin{itemize}
   \item \textbf{Distribuição \TeX}: instale o pacote \pkg{gmap-ufrgs} pelo
     \texttt{tlmgr} (\TeX{} Live) ou pelo console do MiK\TeX.
-  \item \textbf{Manual}: copie \texttt{gmap-ufrgs.cls}, os \texttt{.sty} e os
-    logos (\texttt{gmap-logo-*}) para a pasta do seu arquivo mestre, ou para
+  \item \textbf{Manual}: copie \texttt{gmap-ufrgs.cls} e os \texttt{.sty}
+    para a pasta do seu arquivo mestre, ou para
     \texttt{TEXMFHOME/tex/latex/gmap-ufrgs/} (e atualize o banco de nomes).
   \item \textbf{Repositório Git}: execute \texttt{install.ps1} (Windows) ou
-    \texttt{install.sh} (Linux/macOS), que também instalam o autocompletar do
-    TeXstudio.
+    \texttt{install.sh} (Linux/macOS), que instalam a classe junto com os
+    logos e também o autocompletar do TeXstudio.
+  \item \textbf{Overleaf}: comece pelo template do GMAp (classe, pacotes e
+    logos já no projeto) ou envie os \texttt{.cls}, \texttt{.sty} e os logos
+    para a raiz do projeto.
 \end{itemize}
+Os logos da UFRGS e do GMAp \emph{não} vêm no pacote do CTAN/\TeX{} Live
+(Seção~\ref{sec:logos}).
 Requisitos: \LaTeX{} 2022-06-01 ou posterior (\TeX{} Live 2022 ou MiK\TeX{}
 atualizado), com \pkg{abntex2}. Motor recomendado: pdf\LaTeX{} + Bib\TeX{};
 Lua\LaTeX{} e Xe\LaTeX{} também funcionam.
@@ -106,7 +111,7 @@ Vêm do \pkg{abntex2}: \cs{titulo}, \cs{autor}, \cs{data}, \cs{local},
 \textbackslash codigosprojeto\{texto\} & processo, contrato etc., abaixo da equipe na capa.\\
 \textbackslash gerenciatecnica\{texto\} & gerência técnica solicitante, abaixo dos códigos na capa (perfil \texttt{classico}).\\
 \textbackslash rodapeprojeto\{texto\} & texto do rodapé de todas as páginas (no perfil \texttt{classico}, se omitido, usa o \cs{projeto} em maiúsculas).\\
-\textbackslash gmapendereco\{texto\} & endereço na capa (padrão: sede do GMAp).\\
+\textbackslash gmapendereco\{texto\} & endereço no rodapé da capa (padrão: sede do GMAp).\\
 \textbackslash destinatario\{texto\}, \textbackslash aoscuidados\{texto\}, \textbackslash assunto\{texto\} & dados da carta.\\
 \textbackslash logoesquerda\{arq\}, \textbackslash logodireita\{arq\}, \textbackslash logotopoesquerda\{arq\} & trocam os logos da capa e do cabeçalho.\\
 \bottomrule
@@ -228,19 +233,22 @@ Ambientes \texttt{listalfa} (\textit{(a), (b)\ldots}), \texttt{listtraco}
 
 \section{Logos e licença}\label{sec:logos}
 O código e a documentação são distribuídos sob a LPPL 1.3c ou posterior.
-Os logos \texttt{gmap-logo-ufrgs.png} (capa e cabeçalho) e
-\texttt{gmap-logo-gmap.pdf} são marcas da UFRGS e do GMAp, distribuídos junto
-com a classe pelo próprio GMAp/UFRGS para que o leiaute institucional funcione
-sem configuração. Eles \emph{não} são cobertos pela LPPL:
+Os logos \texttt{gmap-logo-ufrgs.pdf} (capa e cabeçalho) e
+\texttt{gmap-logo-gmap.pdf} são marcas da UFRGS e do GMAp. Eles \emph{não}
+são cobertos pela LPPL e \emph{não} fazem parte do pacote do CTAN/\TeX{} Live:
 \begin{itemize}
-  \item podem ser redistribuídos sem modificação como parte deste pacote;
+  \item estão na pasta \texttt{fig/} do repositório
+    (\url{https://github.com/GMAp-UFRGS/gmap-ufrgs}), são instalados pelo
+    \texttt{install.ps1}/\texttt{install.sh} e já vêm no template do Overleaf;
   \item seu uso é reservado a documentos da UFRGS/GMAp e deve seguir as
     normas da marca (\url{https://www.ufrgs.br/site/marca-ufrgs/});
-  \item fora da UFRGS, troque-os por outros com \cs{logoesquerda},
-    \cs{logodireita} e \cs{logotopoesquerda}.
+  \item fora da UFRGS, troque-os por outros com \cs{logoesquerda}\{arq\},
+    \cs{logodireita}\{arq\} e \cs{logotopoesquerda}\{arq\}, ou desligue-os
+    com o argumento vazio (\cs{logoesquerda}\{\}).
 \end{itemize}
-Se um arquivo de logo não for encontrado, a classe emite um aviso e deixa o
-espaço em branco.
+A classe procura os logos na pasta do documento, em \texttt{fig/}, em
+\texttt{figuras/} e na instalação \TeX. Se um arquivo não for encontrado,
+emite um aviso (dizendo onde obtê-lo) e deixa o espaço em branco.
 
 \section{Limitações conhecidas}
 \begin{itemize}
@@ -256,6 +264,11 @@ espaço em branco.
 
 \section{Histórico}
 \begin{description}
+  \item[v0.1 (2026/11/14)] Os logos da UFRGS e do GMAp saem do pacote do
+    CTAN (que fica inteiramente sob a LPPL e pode entrar no \TeX{} Live);
+    continuam no repositório Git e no template do Overleaf. A classe também
+    procura os logos em \texttt{fig/} e \texttt{figuras/}, e o aviso de logo
+    ausente diz onde obtê-los.
   \item[v0.0 (2026/11/13)] Primeira versão pública (CTAN): classe,
     \pkg{gmap-math} e \pkg{gmap-codigo}; opções \texttt{relatorio},
     \texttt{notatecnica}, \texttt{carta}, \texttt{english},
@@ -289,10 +302,12 @@ the \texttt{assinaturas} environment (keys: \texttt{imagem}, \texttt{altura},
 \texttt{linha}, \texttt{posicao}, \texttt{espaco}). Installation: through \texttt{tlmgr} or MiKTeX,
 or by copying the \texttt{.cls}/\texttt{.sty} files next to your document.
 License: LPPL 1.3c or later (code and documentation). The UFRGS and GMAp
-logos shipped with the class are trademarks, not covered by the LPPL: they may
-be redistributed unmodified with this package, but are reserved for UFRGS/GMAp
-documents; others should replace them with \cs{logoesquerda},
-\cs{logodireita} and \cs{logotopoesquerda} (see Section~\ref{sec:logos}).
+logos used by default are trademarks, not covered by the LPPL and not part of
+the CTAN/TeX Live package: they are in the \texttt{fig/} folder of the Git
+repository and in the GMAp Overleaf template, and are reserved for UFRGS/GMAp
+documents. Others should replace them with \cs{logoesquerda},
+\cs{logodireita} and \cs{logotopoesquerda}, or disable them with an empty
+argument (see Section~\ref{sec:logos}).
 Repository and bug tracker: \url{https://github.com/GMAp-UFRGS/gmap-ufrgs}.
 
 \end{document}

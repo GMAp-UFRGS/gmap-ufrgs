@@ -2,7 +2,7 @@ gmap-ufrgs -- LaTeX class for technical reports of GMAp/UFRGS
 ==============================================================
 
 Name:        gmap-ufrgs
-Version:     v0.0 (2026/11/13)
+Version:     v0.1 (2026/11/14)
 Maintainer:  Boris N. Rojo Tanzi
 Repository:  https://github.com/GMAp-UFRGS/gmap-ufrgs
 Bug tracker: https://github.com/GMAp-UFRGS/gmap-ufrgs/issues
@@ -26,14 +26,13 @@ Files
 - `gmap-codigo.sty`  optional: code and command-line environments
 - `doc/gmap-ufrgs-doc.tex` / `.pdf`  manual (Portuguese, with an English summary)
 - `example/exemplo-minimo.tex`  minimal compilable example
-- `gmap-logo-ufrgs.png`, `gmap-logo-gmap.pdf`  UFRGS and GMAp logos, used by
-  default on the cover and header (NOT under the LPPL; see "Logos" below).
-  In the Git repository they are in `fig/`.
 
 Only in the Git repository (not distributed on CTAN):
+- `fig/gmap-logo-ufrgs.pdf`, `fig/gmap-logo-gmap.pdf`  UFRGS and GMAp logos,
+  used by default on the cover and header (NOT under the LPPL; see "Logos")
 - `install.ps1`, `install.sh`  install the class and the logos into TEXMFHOME
 - `texstudio/*.cwl`  TeXstudio completion files, installed by the scripts above
-- `ctan/`  script that builds the CTAN archive
+- `ctan/`  scripts that build the CTAN archive and the Overleaf template
 
 Class options
 -------------
@@ -75,13 +74,18 @@ Recommended engine: pdfLaTeX + BibTeX; LuaLaTeX and XeLaTeX also work.
 Installation
 ------------
 From a TeX distribution: install the package `gmap-ufrgs` with `tlmgr` or the
-MiKTeX console. Manually: copy the `.cls`, `.sty` and logo files to
+MiKTeX console. Manually: copy the `.cls` and `.sty` files to
 `TEXMFHOME/tex/latex/gmap-ufrgs/` (and refresh the file-name database), or put
-them in the folder of your main `.tex` file.
+them in the folder of your main `.tex` file. GMAp/UFRGS documents also need
+the two logo files (see "Logos").
 
 From the Git repository: run `install.ps1` (Windows) or `install.sh`
-(Linux/macOS); they also install, if TeXstudio is configured, its completion
-files (restart TeXstudio afterwards).
+(Linux/macOS); they install the class together with the logos and, if
+TeXstudio is configured, its completion files (restart TeXstudio afterwards).
+
+On Overleaf: start from the GMAp template (class, packages and logos already
+in the project), or upload the `.cls`, `.sty` and logo files to the root of
+the project.
 
 Quick start
 -----------
@@ -98,17 +102,21 @@ Quick start
 
 Logos
 -----
-`gmap-logo-ufrgs.png` and `gmap-logo-gmap.pdf` are trademarks of the
+`gmap-logo-ufrgs.pdf` and `gmap-logo-gmap.pdf` are trademarks of the
 Universidade Federal do Rio Grande do Sul (UFRGS) and of its Grupo de Mecanica
-Aplicada (GMAp). They are distributed with the class, by the GMAp/UFRGS, so
-that the class produces the institutional layout out of the box. They are NOT
-covered by the LPPL: they may be redistributed unmodified as part of this
-package, but their use is reserved for documents of UFRGS/GMAp and must follow
-the UFRGS brand guidelines (https://www.ufrgs.br/site/marca-ufrgs/).
+Aplicada (GMAp). They are NOT covered by the LPPL and are NOT part of the
+CTAN/TeX Live package. They are available in the `fig/` folder of the Git
+repository (https://github.com/GMAp-UFRGS/gmap-ufrgs), are installed by
+`install.ps1`/`install.sh` and are included in the GMAp Overleaf template.
+Their use is reserved for documents of UFRGS/GMAp and must follow the UFRGS
+brand guidelines (https://www.ufrgs.br/site/marca-ufrgs/).
 
-Users outside UFRGS should replace them with `\logoesquerda`, `\logodireita`
-and `\logotopoesquerda`. The class works without the logo files: if a file is
-missing, it issues a warning and leaves the space blank.
+The class looks for them in the folder of the document, in `fig/`, in
+`figuras/` and in the TeX installation. If a file is missing, it issues a
+warning and leaves the space blank. Users outside UFRGS should replace them
+with `\logoesquerda{file}`, `\logodireita{file}` and `\logotopoesquerda{file}`,
+or disable them (and the warning) with an empty argument, e.g.
+`\logoesquerda{}`.
 
 Bibliography tip
 ----------------
@@ -120,6 +128,7 @@ License
 -------
 Copyright (C) 2026 Boris N. Rojo Tanzi and GMAp/UFRGS.
 The code and documentation (`.cls`, `.sty`, `.tex`) are distributed under the
-LaTeX Project Public License, version 1.3c or later; see `LICENSE`.
-The logo files are excluded from this license (see "Logos").
+LaTeX Project Public License, version 1.3c or later
+(https://www.latex-project.org/lppl.txt).
+The logo files are not part of this work (see "Logos").
 This work has the LPPL maintenance status `maintained`.

@@ -18,12 +18,13 @@
 %%
 %% This work consists of the files gmap-ufrgs.cls, gmap-math.sty,
 %% gmap-codigo.sty, doc/gmap-ufrgs-doc.tex and example/exemplo-minimo.tex.
-%% The institutional logos gmap-logo-ufrgs.png and gmap-logo-gmap.pdf are
-%% distributed together with this work, but are NOT part of it and are
-%% NOT covered by the LPPL: they are trademarks of UFRGS and GMAp (see README).
+%% The institutional logos gmap-logo-ufrgs.pdf and gmap-logo-gmap.pdf, used by
+%% default, are NOT part of this work and are NOT distributed with it: they
+%% are trademarks of UFRGS and GMAp, available in the Git repository
+%% https://github.com/GMAp-UFRGS/gmap-ufrgs (see README).
 %%
 \NeedsTeXFormat{LaTeX2e}[2022/06/01]
-\ProvidesClass{gmap-ufrgs}[2026/11/13 v0.0 Relatorios tecnicos GMAp/UFRGS (ABNT ou perfil classico)]
+\ProvidesClass{gmap-ufrgs}[2026/11/14 v0.1 Relatorios tecnicos GMAp/UFRGS (ABNT ou perfil classico)]
 
 %---------------------------------------------------------------------
 % Pacotes minimos necessarios antes das opcoes
@@ -221,23 +222,32 @@
 \newcommand\aoscuidados[1]{\gdef\gmap@aoscuidados{#1}}
 \newcommand\assunto[1]{\gdef\gmap@assunto{#1}}
 
-% Logos (arquivos instalados junto com a classe; podem ser trocados)
-\newcommand\gmap@logoesq{gmap-logo-ufrgs.png}
+% Logos (nao vem no pacote do CTAN/TeX Live: estao no repositorio Git, em
+% fig/; podem ser trocados, ou desligados com \logoesquerda{} etc.)
+\newcommand\gmap@logoesq{gmap-logo-ufrgs.pdf}
 \newcommand\gmap@logodir{gmap-logo-gmap.pdf}
-\newcommand\gmap@logotopoesq{gmap-logo-ufrgs.png}
+\newcommand\gmap@logotopoesq{gmap-logo-ufrgs.pdf}
 \newcommand\logoesquerda[1]{\gdef\gmap@logoesq{#1}}
 \newcommand\logodireita[1]{\gdef\gmap@logodir{#1}}
 \newcommand\logotopoesquerda[1]{\gdef\gmap@logotopoesq{#1}}
 
-% Imprime logo se existir; senao avisa uma vez e deixa espaco vazio
+% Imprime logo se existir (na pasta do documento, em fig/ ou figuras/, ou
+% instalado); senao avisa uma vez e deixa espaco vazio
 \newcommand\gmap@logo[2]{%
   \ifdefempty{#1}{}{%
     \IfFileExists{#1}{\includegraphics[#2]{#1}}{%
+    \IfFileExists{fig/#1}{\includegraphics[#2]{fig/#1}}{%
+    \IfFileExists{figuras/#1}{\includegraphics[#2]{figuras/#1}}{%
       \ifgmap@warned\else
         \global\gmap@warnedtrue
         \PackageWarningNoLine{gmap-ufrgs}{Logo not found (ignored): #1.\MessageBreak
+          The UFRGS/GMAp logos are not part of the\MessageBreak
+          CTAN/TeX Live package. Get them from\MessageBreak
+          https://github.com/GMAp-UFRGS/gmap-ufrgs (fig/)\MessageBreak
+          and put them next to your document or in fig/,\MessageBreak
+          or disable them with \string\logoesquerda{} etc.\MessageBreak
           See section "Logos" of the manual}%
-      \fi}}}
+      \fi}}}}}
 
 % Pessoas: autores (N), verificador e aprovador
 \newcounter{gmap@naut}
@@ -289,15 +299,37 @@
 \setlength{\headsep}{\gmap@headsep}
 \checkandfixthelayout[fixed]
 
+% Alturas dos logos no cabecalho (cabem na altura do cabecalho, 48pt).
+% As letras "UFRGS" ocupam 39% da altura do logo da UFRGS e as maiusculas
+% do GMAp 74% do logo do GMAp: com 1,5 cm e 0,8 cm as letras dos dois
+% ficam da mesma altura. O GMAp desce 23% da sua altura (a perna do "p")
+% para que as letras dos dois logos fiquem na mesma linha de base.
+\newlength{\gmap@logoaltesq}\setlength{\gmap@logoaltesq}{1.5cm}
+\newlength{\gmap@logoaltdir}\setlength{\gmap@logoaltdir}{0.8cm}
+\newcommand\gmap@logodireito{%
+  \raisebox{-0.23\gmap@logoaltdir}%
+    {\gmap@logo{\gmap@logodir}{height=\gmap@logoaltdir}}}
+
 \makepagestyle{gmap}
 \makeoddhead{gmap}%
-  {\gmap@logo{\gmap@logotopoesq}{height=1.5cm}}%
+  {\gmap@logo{\gmap@logotopoesq}{height=\gmap@logoaltesq}}%
   {\ifgmap@prelim\textcolor{red}{\sffamily\bfseries\gmap@prelimname}\fi}%
-  {\gmap@logo{\gmap@logodir}{height=1.1cm}}
+  {\gmap@logodireito}
 \makeoddfoot{gmap}%
   {\ifgmap@prelim\textcolor{red}{\scriptsize\sffamily\gmap@prelimname}\fi}%
   {}%
   {\scriptsize\sffamily\gmap@rodapetexto\thepage}
+
+% Capa: logos no cabecalho e instituicao no rodape, dentro das margens
+% (o rodape cresce para cima a partir da linha de base, nunca passa
+% para a pagina seguinte, por maior que seja a equipe)
+\makepagestyle{gmapcapa}
+\makeoddhead{gmapcapa}%
+  {\gmap@logo{\gmap@logoesq}{height=\gmap@logoaltesq}}{}%
+  {\gmap@logodireito}
+\makeoddfoot{gmapcapa}{}%
+  {\parbox[b]{\textwidth}{\centering\sffamily\footnotesize\color{gray}%
+     \gmap@instname\\ \gmap@univname\\ {\scriptsize\gmap@enderecoinst}}}{}
 
 % Texto do rodape: \rodapeprojeto; no perfil classico, se nao for dado,
 % usa o nome do projeto em maiusculas (nada fica escrito na classe)
@@ -349,10 +381,8 @@
   \ifdefempty{\imprimirlocal}{}{\imprimirlocal, }\imprimirdata}
 
 \newcommand\gmap@capa@relatorio{%
-  \begin{capa}\begin{SingleSpacing}\sffamily
-    \thispagestyle{empty}%
-    \noindent\gmap@logo{\gmap@logoesq}{width=3.5cm}\hfill\gmap@logo{\gmap@logodir}{width=3.5cm}\par
-    \vfill
+  \begin{capa}\aliaspagestyle{titlingpage}{gmapcapa}\begin{SingleSpacing}\sffamily
+    \vspace*{\fill}
     \begin{center}
       {\color{gmapazul}\rule{\linewidth}{0.8pt}\par\vspace{1ex}%
        {\large\bfseries\gmap@projeto\par}\vspace{1ex}\rule{\linewidth}{0.8pt}\par}
@@ -370,19 +400,14 @@
         \gmap@equipe\par
         \ifdefempty{\gmap@codigos}{}{\medskip\gmap@codigos\par}
       \end{minipage}\end{flushright}}
-    \vfill
-    \begin{center}\footnotesize\color{gray}
-      \gmap@instname\\ \gmap@univname\\ {\scriptsize\gmap@enderecoinst}
-    \end{center}
+    \vspace*{\fill}
   \end{SingleSpacing}\end{capa}}
 
 % Perfil classico: capa do formato anterior (projeto entre filetes,
 % tipo + numero, revisao, titulo, data; equipe deslocada a direita)
 \newcommand\gmap@capa@classico{%
-  \begin{capa}\begin{SingleSpacing}\sffamily
-    \thispagestyle{empty}%
-    \noindent\gmap@logo{\gmap@logoesq}{width=3.5cm}\hfill\gmap@logo{\gmap@logodir}{width=3.5cm}\par
-    \vfill
+  \begin{capa}\aliaspagestyle{titlingpage}{gmapcapa}\begin{SingleSpacing}\sffamily
+    \vspace*{\fill}
     \begin{center}
       {\color{gmapazul}\rule{\linewidth}{0.8pt}\par\vspace{2ex}%
        {\large\bfseries\gmap@projeto\par}\vspace{2ex}\rule{\linewidth}{0.8pt}\par}
@@ -403,10 +428,7 @@
         \ifdefempty{\gmap@codigos}{}{\medskip\gmap@codigos\par}
         \ifdefempty{\gmap@gerencia}{}{\medskip\gmap@gerencianame: \gmap@gerencia\par}
       \end{minipage}\par}
-    \vfill
-    \begin{center}\footnotesize\color{gray}
-      \gmap@instname\\ \gmap@univname\\ {\scriptsize\gmap@enderecoinst}
-    \end{center}
+    \vspace*{\fill}
   \end{SingleSpacing}\end{capa}}
 
 % Nota tecnica: bloco de titulo compacto, sem pagina propria
