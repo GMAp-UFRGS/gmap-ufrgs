@@ -1,0 +1,43 @@
+% Exemplo do perfil classico da classe gmap-ufrgs.
+% Compile: latexmk -pdf exemplo-classico.tex   (dados ficticios)
+% No perfil classico a capa, o sumario e as listas de siglas e de simbolos
+% saem sozinhos no \begin{document}: o texto comeca direto no capitulo.
+\documentclass[classico]{gmap-ufrgs}
+
+\projeto{Projeto Exemplo}
+\numerodoc{GMAp-RT-000/2026}
+\revisao{0}
+\titulo{Exemplo do Perfil Cl\'assico}
+\local{Porto Alegre}
+\addautor{Beltrana de Tal}{Eng. Mec\^anica}{CREA-RS 000001}
+\equipe{Prof. Fulano de Tal\\ Beltrana de Tal}
+
+%--------------------------------------------------------------------
+% Siglas, abreviaturas, simbolos e glossario (glossaries-extra).
+% So entram nas listas os itens usados no texto. Podem ficar num arquivo
+% a parte, lido no preambulo com \input{siglas}.
+%--------------------------------------------------------------------
+% Siglas: 1.a vez "Expansao (SIGLA)", depois so "SIGLA"
+\sigla{mef}{MEF}{M\'etodo dos Elementos Finitos}
+\sigla[user1={Applied Mechanics Group}]{gmap}{GMAp}{Grupo de Mec\^anica Aplicada}
+\newacronym{abnt}{ABNT}{Associa\c{c}\~ao Brasileira de Normas T\'ecnicas}
+% Abreviaturas: sempre so a forma curta
+\abreviatura{etal}{et al.}{et alii}
+% Simbolos (lista na ordem em que aparecem no texto)
+\simbolo{sigma}{$\sigma$}{Tens\~ao normal}
+\glsxtrnewsymbol[description={M\'odulo de elasticidade}]{E}{\ensuremath{E}}
+% Glossario (no fim do documento)
+\termo{malha}{malha}{Divis\~ao do dom\'inio em elementos.}
+\newglossaryentry{no}{name={n\'o},description={Ponto que liga elementos da malha.},sort={no}}
+
+\begin{document}
+\chapter{Introdu\c{c}\~ao}
+Este relat\'orio do \gls{gmap} usa o \gls{mef}, conforme a \gls{abnt}. Na
+segunda vez, s\'o a sigla: \gls{mef}. Segundo Silva \gls{etal}, a
+\gls{malha} tem tens\~ao \gls{sigma} e m\'odulo \gls{E} em cada \gls{no}.
+
+\figura[fonte={Elaborada pelos autores.}]{example-image-a}{Figura de exemplo.}
+
+\blocoassinatura{Prof. Fulano de Tal\\ Coordenador do projeto\\
+  Grupo de Mec\^anica Aplicada}
+\end{document}

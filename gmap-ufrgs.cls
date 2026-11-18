@@ -17,14 +17,15 @@
 %% The Current Maintainer of this work is Boris N. Rojo Tanzi.
 %%
 %% This work consists of the files gmap-ufrgs.cls, gmap-math.sty,
-%% gmap-codigo.sty, doc/gmap-ufrgs-doc.tex and example/exemplo-minimo.tex.
+%% gmap-codigo.sty, doc/gmap-ufrgs-doc.tex, example/exemplo-minimo.tex and
+%% example/exemplo-classico.tex.
 %% The institutional logos gmap-logo-ufrgs.pdf and gmap-logo-gmap.pdf, used by
 %% default, are NOT part of this work and are NOT distributed with it: they
 %% are trademarks of UFRGS and GMAp, available in the Git repository
 %% https://github.com/GMAp-UFRGS/gmap-ufrgs (see README).
 %%
 \NeedsTeXFormat{LaTeX2e}[2022/06/01]
-\ProvidesClass{gmap-ufrgs}[2026/11/14 v0.1 Relatorios tecnicos GMAp/UFRGS (ABNT ou perfil classico)]
+\ProvidesClass{gmap-ufrgs}[2026/11/18 v0.2 Relatorios tecnicos GMAp/UFRGS (ABNT ou perfil classico)]
 
 %---------------------------------------------------------------------
 % Pacotes minimos necessarios antes das opcoes
@@ -60,8 +61,23 @@
 \DeclareOption{confidencial}{\gmap@conftrue}
 \DeclareOption{preliminar}{\gmap@prelimtrue}
 \DeclareOption{sans}{\gmap@sanstrue}
+% Elementos pre-textuais automaticos (capa, sumario, listas) no
+% \begin{document}: padrao no perfil classico, opcional no abnt
+\newcommand\gmap@autoopt{}
+\DeclareOption{pretextualautomatico}{\def\gmap@autoopt{1}}
+\DeclareOption{pretextualmanual}{\def\gmap@autoopt{0}}
+% Listas que nao devem sair (nem automaticas nem com \imprimir...)
+\DeclareOption{semsiglas}{\csdef{gmap@sem@siglas}{}}
+\DeclareOption{semsimbolos}{\csdef{gmap@sem@simbolos}{}}
+\DeclareOption{semglossario}{\csdef{gmap@sem@glossario}{}}
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{abntex2}}
 \ProcessOptions\relax
+\newif\ifgmap@auto
+\ifdefstring{\gmap@autoopt}{1}{\gmap@autotrue}{%
+  \ifdefstring{\gmap@autoopt}{0}{}{\ifgmap@classico\gmap@autotrue\fi}}
+% so no relatorio (a nota tecnica e a carta nao tem sumario)
+\ifgmap@nota\gmap@autofalse\fi
+\ifgmap@carta\gmap@autofalse\fi
 
 %---------------------------------------------------------------------
 % Classe base: abntex2 (memoir). Portugues e' o idioma principal; com a
@@ -106,6 +122,11 @@
 % (lmss existe nas codificacoes T1 e TU: vale para pdfLaTeX, LuaLaTeX e XeLaTeX)
 \ifgmap@classico\renewcommand{\rmdefault}{lmss}\fi
 \RequirePackage{graphicx}
+% PDFs incluidos (logos, figuras) nao levam para o documento final os seus
+% metadados (titulo, nome do arquivo, numero da pagina): leitores de PDF
+% nao mostram, p.ex., "logo_GMAp" ao passar sobre o logo ou nas propriedades
+\ifdefined\pdfsuppressptexinfo \pdfsuppressptexinfo=14 \fi
+\ifLuaTeX\ifdefined\pdfvariable \pdfvariable suppressoptionalinfo 14 \fi\fi
 % Pastas onde \includegraphics e \figura procuram as imagens
 \graphicspath{{fig/}{figuras/}}
 \RequirePackage[table]{xcolor}
@@ -115,6 +136,9 @@
 \RequirePackage{booktabs,tabularx,multirow,longtable}
 \RequirePackage{float}
 \RequirePackage{xspace}
+% o abntex2cite traz uma copia do substr; carregando o original antes, o
+% glossaries (que tambem usa o substr) nao gera "already defined"
+\RequirePackage{substr}
 \ifgmap@classico
   \RequirePackage[num,abnt-etal-cite=2,abnt-etal-list=2]{abntex2cite}
   \citebrackets[]% citacao [1], como no formato anterior
@@ -148,6 +172,7 @@
   \def\gmap@acname{A/C}%
   \def\gmap@atenciosamentename{Atenciosamente,}%
   \def\gmap@prelimname{PRELIMINAR}%
+  \def\gmap@glossarioname{Gloss\'ario}%
   \def\gmap@confname{ATEN\c{C}\~AO: \textbf{Este \'e um documento confidencial}.
     A utiliza\c{c}\~ao, interpreta\c{c}\~ao e homologa\c{c}\~ao dos dados aqui
     contidos \'e de inteira responsabilidade do solicitante. O Grupo de Mec\^anica
@@ -177,6 +202,7 @@
   \def\gmap@acname{Attn.}%
   \def\gmap@atenciosamentename{Sincerely,}%
   \def\gmap@prelimname{PRELIMINARY}%
+  \def\gmap@glossarioname{Glossary}%
   \def\gmap@confname{NOTICE: \textbf{This is a confidential document}.
     The use, interpretation and homologation of the data herein is the sole
     responsibility of the requester. The Applied Mechanics Group -- GMAp/UFRGS
@@ -278,24 +304,22 @@
 %---------------------------------------------------------------------
 % Cabecalho e rodape (memoir)
 %---------------------------------------------------------------------
-% Margens verticais: o cabecalho comeca a 2 cm do topo da pagina e o
-% rodape termina a 2 cm da borda inferior (margens superior = inferior).
-\newlength{\gmap@margemvert}\setlength{\gmap@margemvert}{2cm}
+% Margens verticais (ABNT): o texto comeca a 3 cm do topo e termina a 2 cm
+% da borda inferior. Cabecalho e rodape ficam DENTRO dessas margens, perto
+% das bordas: o topo dos logos fica a ~1 cm do topo da pagina e a linha de
+% base do rodape a 1 cm da borda inferior.
+\newlength{\gmap@margemsup}\setlength{\gmap@margemsup}{3cm}
+\newlength{\gmap@margeminf}\setlength{\gmap@margeminf}{2cm}
+\newlength{\gmap@headdrop}\setlength{\gmap@headdrop}{0.8cm}
 \newlength{\gmap@headh}\setlength{\gmap@headh}{48pt}
-\newlength{\gmap@headsep}\setlength{\gmap@headsep}{18pt}
-\newlength{\gmap@footh}\setlength{\gmap@footh}{32pt}
-\newlength{\gmap@upper}
-\setlength{\gmap@upper}{\gmap@margemvert}
-\addtolength{\gmap@upper}{\gmap@headh}
-\addtolength{\gmap@upper}{\gmap@headsep}
-\newlength{\gmap@lower}
-\setlength{\gmap@lower}{\gmap@margemvert}
-\addtolength{\gmap@lower}{\gmap@footh}
-\setulmarginsandblock{\gmap@upper}{\gmap@lower}{*}
+\newlength{\gmap@footskip}\setlength{\gmap@footskip}{1cm}
+\newlength{\gmap@headsep}% o que sobra entre o cabecalho e o texto
+\setlength{\gmap@headsep}{\dimexpr\gmap@margemsup-\gmap@headdrop-\gmap@headh\relax}
+\setulmarginsandblock{\gmap@margemsup}{\gmap@margeminf}{*}
 % classico: margens laterais de 2 cm (largura de texto de 17 cm em A4)
 \ifgmap@classico\setlrmarginsandblock{2cm}{2cm}{*}\fi
-\setheadfoot{\gmap@headh}{\gmap@footh}
-\setlength{\headdrop}{\gmap@margemvert}
+\setheadfoot{\gmap@headh}{\gmap@footskip}
+\setlength{\headdrop}{\gmap@headdrop}
 \setlength{\headsep}{\gmap@headsep}
 \checkandfixthelayout[fixed]
 
@@ -772,6 +796,175 @@
 %---------------------------------------------------------------------
 \ifgmap@nota
   \counterwithout{section}{chapter}
+\fi
+
+%---------------------------------------------------------------------
+% Siglas, simbolos e glossario automaticos (pacote glossaries-extra, modo
+% "noidx": nao precisa de makeindex/makeglossaries nem de configurar o
+% latexmk ou o Overleaf; basta compilar duas vezes, como para o sumario)
+% Valem os comandos do glossaries-extra e os atalhos da classe:
+%   \newabbreviation[chaves]{rotulo}{curta}{longa}  \
+%   \newacronym[chaves]{rotulo}{SIGLA}{Expansao}     > abreviaturas e siglas
+%   \sigla[chaves]{rotulo}{SIGLA}{Expansao}         |  (= \newacronym)
+%   \abreviatura[chaves]{rotulo}{et al.}{et alii}   /  (so a forma curta)
+%   \glsxtrnewsymbol[description={...}]{rotulo}{$\sigma$}  \  simbolos
+%   \simbolo[chaves]{rotulo}{$\sigma$}{Descricao}          /
+%   \newglossaryentry{rotulo}{name={...},description={...}} \ glossario
+%   \termo[chaves]{rotulo}{Termo}{Definicao}                /
+% (definidos no preambulo). No texto: \gls{rotulo} (\glspl, \Gls, \glsxtrshort,
+% \glsxtrlong, \glsxtrfull). So entram nas listas os itens usados no texto.
+% Siglas (\newacronym/\sigla): 1.a vez "Expansao (SIGLA)"; com user1={...}
+% (p.ex. o nome em ingles), "Expansao (SIGLA, user1)" e, na lista, user1 em
+% italico abaixo da expansao. \newabbreviation segue o estilo padrao do
+% glossaries-extra (long-short); mude com \setabbreviationstyle{...} no
+% preambulo, antes das definicoes.
+% Listas: \imprimirsiglas e \imprimirsimbolos (pre-textuais, sem pagina
+% propria se vazias) e \imprimirglossario (pos-textual, no sumario; se nao
+% for chamado, sai no fim do documento). Com os pre-textuais automaticos,
+% as listas de siglas e de simbolos saem sozinhas.
+%---------------------------------------------------------------------
+\RequirePackage[abbreviations,symbols,nonumberlist,nogroupskip,
+  translate=false]{glossaries-extra}
+\makenoidxglossaries
+% documento sem siglas/termos nao deve gerar aviso
+\let\warn@noprintglossary\relax
+% lista desligada por opcao: \gls dessas entradas sem link (nao ha destino)
+\ifcsdef{gmap@sem@siglas}{\GlsDeclareNoHyperList{abbreviations}}{}
+\ifcsdef{gmap@sem@simbolos}{\GlsDeclareNoHyperList{symbols}}{}
+\ifcsdef{gmap@sem@glossario}{\GlsDeclareNoHyperList{main}}{}
+\setabbreviationstyle[acronym]{long-short-user}
+% na lista: expansao com inicial maiuscula e o campo user1 (se houver) em
+% italico na linha de baixo (\glsxtrpostdescacronym pode ser redefinido)
+\glssetcategoryattribute{acronym}{glossdesc}{firstuc}
+\newcommand\gmap@postdescuser{%
+  \ifglshasfield{\glsxtruserfield}{\glscurrententrylabel}%
+    {\newline\textit{\glscurrentfieldvalue}}{}}
+\csdef{glsxtrpostdescacronym}{\gmap@postdescuser}
+\csdef{glsxtrpostdescabbreviation}{\gmap@postdescuser}
+
+% abreviaturas (et al., p., fig.): sempre so a forma curta no texto
+\setabbreviationstyle[abreviatura]{short-nolong}
+% "et al." no fim da frase nao vira "et al.."
+\glssetcategoryattribute{abreviatura}{discardperiod}{true}
+
+\newcommand\sigla[4][]{\newacronym[#1]{#2}{#3}{#4}}
+\newcommand\abreviatura[4][]{\newabbreviation[category=abreviatura,#1]{#2}{#3}{#4}}
+\newcommand\simbolo[4][]{\glsxtrnewsymbol[description={#4},#1]{#2}{#3}}
+\newcommand\termo[4][]{\newglossaryentry{#2}{name={#3},description={#4},#1}}
+
+% sigla/simbolo a esquerda, descricao a direita, alinhado a margem
+\newglossarystyle{gmap}{%
+  \setglossarystyle{long}%
+  \renewenvironment{theglossary}%
+    {\setlength{\LTleft}{0pt}\setlength{\LTright}{\fill}%
+     \begin{longtable}{@{}l@{\hspace{1.5em}}p{\glsdescwidth}@{}}}%
+    {\end{longtable}}}
+% glossario: "Termo: definicao." (inicial maiuscula na lista), em
+% paragrafos com recuo pendente (sem \item: o nameref tenta expandir o
+% rotulo do \item, o que quebra com os nomes do glossaries-extra)
+\newglossarystyle{gmaplista}{%
+  \setglossarystyle{list}%
+  \renewenvironment{theglossary}%
+    {\par\setlength{\parindent}{0pt}\setlength{\parskip}{.5\baselineskip}}%
+    {\par}%
+  \renewcommand*{\glossaryheader}{}%
+  \renewcommand*{\glsgroupheading}[1]{}%
+  \renewcommand*{\glsgroupskip}{}%
+  \renewcommand*{\glossentry}[2]{%
+    \par\hangindent=1.5em\hangafter=1
+    \textbf{\glsentryitem{##1}\glstarget{##1}{\Glossentryname{##1}}:}\space
+    \glossentrydesc{##1}\glspostdescription\par}%
+  \renewcommand*{\subglossentry}[3]{\glossentry{##2}{##3}}}
+
+% titulos: pre-textual (fora do sumario, como as listas do abntex2) e
+% pos-textual (no sumario, sem numero)
+\newcommand\gmap@cab@pre[1]{\pretextualchapter{#1}}
+\newcommand\gmap@cab@pos[1]{%
+  \chapter*{#1}\phantomsection\addcontentsline{toc}{chapter}{#1}}
+
+% #1 tipo, #2 titulo, #3 ordem, #4 estilo, #5 titulo (\gmap@cab@...)
+% (nada e' impresso se nenhum item do tipo foi usado no texto)
+\newcommand\gmap@lista[5]{%
+  \ifcsundef{@glsref@#1}{}{%
+    \begingroup
+      \renewcommand*{\glossarysection}[2][]{#5{##2}}%
+      \setlength{\glsdescwidth}{0.72\linewidth}%
+      \printnoidxglossary[type=#1,title={#2},sort=#3,style=#4]%
+    \endgroup}}
+
+% cada lista sai uma vez so (a automatica ou a do usuario); com a opcao
+% sem<lista>, nunca sai (sem aviso)
+\newcommand\gmap@umavez[3]{%
+  \ifcsdef{gmap@sem@#1}{\csgdef{gmap@feito@#1}{}}{\gmap@umavez@{#1}{#2}{#3}}}
+\newcommand\gmap@umavez@[3]{%
+  \ifcsdef{gmap@feito@#1}%
+    {\PackageWarning{gmap-ufrgs}{\string#2 already printed, ignored}}%
+    {\csgdef{gmap@feito@#1}{}#3}}
+\newcommand\imprimirsiglas{\gmap@umavez{siglas}{\imprimirsiglas}%
+  {\gmap@lista{\glsxtrabbrvtype}{\listadesiglasname}{standard}{gmap}{\gmap@cab@pre}}}
+% simbolos na ordem em que aparecem no texto (ABNT NBR 14724)
+\newcommand\imprimirsimbolos{\gmap@umavez{simbolos}{\imprimirsimbolos}%
+  {\gmap@lista{symbols}{\listadesimbolosname}{use}{gmap}{\gmap@cab@pre}}}
+\newcommand\imprimirglossario{\gmap@umavez{glossario}{\imprimirglossario}%
+  {\gmap@lista{\glsdefaulttype}{\gmap@glossarioname}{standard}{gmaplista}{\gmap@cab@pos}}}
+\AddToHook{enddocument}{%
+  \ifcsdef{gmap@feito@glossario}{}{\imprimirglossario}%
+  \ifcsdef{gmap@feito@siglas}{}{\ifcsundef{@glsref@\glsxtrabbrvtype}{}{%
+    \PackageWarningNoLine{gmap-ufrgs}{Acronyms used but no \string\imprimirsiglas}}}%
+  \ifcsdef{gmap@feito@simbolos}{}{\ifcsundef{@glsref@symbols}{}{%
+    \PackageWarningNoLine{gmap-ufrgs}{Symbols used but no \string\imprimirsimbolos}}}}
+
+%---------------------------------------------------------------------
+% Elementos pre-textuais automaticos (perfil classico, ou opcao
+% pretextualautomatico): no \begin{document} saem
+%   capa, folha de controle (so se houver \verificador, \aprovador ou a
+%   opcao confidencial), sumario e listas de siglas e de simbolos (se
+%   usadas), e o documento ja comeca na parte textual.
+% classico: sumario antes das listas; abnt: listas antes do sumario (ABNT).
+% Documentos antigos que ainda tem \imprimircapa, \pdfbookmark{...}{toc},
+% \tableofcontents* e \textual continuam compilando: esses comandos sao
+% ignorados (com aviso). Para montar os pre-textuais a mao (resumo,
+% lista de figuras...), use a opcao pretextualmanual.
+%---------------------------------------------------------------------
+\let\gmap@tableofcontents\tableofcontents
+\newcommand\gmap@sumario{%
+  \clearpage% o sumario do memoir nao comeca pagina nova sozinho
+  \pdfbookmark[0]{\contentsname}{gmap-sumario}%
+  \gmap@tableofcontents*%
+  \cleardoublepage}
+\newcommand\gmap@ignorado[1]{%
+  \PackageWarning{gmap-ufrgs}{\string#1 ignored: the pre-textual\MessageBreak
+    elements are printed automatically. Remove it,\MessageBreak
+    or use the class option pretextualmanual}}
+\newif\ifgmap@folha
+\newcommand\gmap@pretextual@auto{%
+  \pretextual
+  \imprimircapa
+  \gmap@folhafalse
+  \ifgmap@conf\gmap@folhatrue\fi
+  \ifcsdef{gmap@v@nome}{\gmap@folhatrue}{}%
+  \ifcsdef{gmap@p@nome}{\gmap@folhatrue}{}%
+  \ifgmap@folha\imprimirfolhadecontrole\fi
+  \ifgmap@classico
+    \gmap@sumario\imprimirsiglas\imprimirsimbolos
+  \else
+    \imprimirsiglas\imprimirsimbolos\gmap@sumario
+  \fi
+  \textual
+  % o que ja saiu nao sai de novo se estiver escrito no documento
+  \gdef\imprimircapa{\gmap@ignorado{\imprimircapa}}%
+  \ifgmap@folha
+    \gdef\imprimirfolhadecontrole{\gmap@ignorado{\imprimirfolhadecontrole}}\fi
+  \gdef\tableofcontents{\@ifstar{\gmap@ignorado{\tableofcontents}}%
+                                {\gmap@ignorado{\tableofcontents}}}%
+  \global\let\gmap@pdfbookmark@orig\pdfbookmark
+  \gdef\pdfbookmark{\@ifnextchar[\gmap@pdfbookmark{\gmap@pdfbookmark[0]}}%
+  \gdef\textual{}}
+% \pdfbookmark{...}{toc} dos documentos antigos marcaria o sumario de novo
+\def\gmap@pdfbookmark[#1]#2#3{%
+  \ifstrequal{#3}{toc}{}{\gmap@pdfbookmark@orig[#1]{#2}{#3}}}
+\ifgmap@auto
+  \AddToHook{begindocument/end}{\gmap@pretextual@auto}
 \fi
 
 \endinput

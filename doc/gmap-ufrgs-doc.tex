@@ -21,7 +21,7 @@
 
 \title{A classe \pkg{gmap-ufrgs}\\\large Relatórios técnicos do GMAp/UFRGS conforme a ABNT}
 \author{Boris N. Rojo Tanzi}
-\date{v0.1 -- 2026/11/14\\[1ex]\small\url{https://github.com/GMAp-UFRGS/gmap-ufrgs}}
+\date{v0.2 -- 2026/11/18\\[1ex]\small\url{https://github.com/GMAp-UFRGS/gmap-ufrgs}}
 
 \begin{document}
 \maketitle
@@ -89,7 +89,12 @@ confidencial & imprime o aviso de confidencialidade na folha de controle.\\
 preliminar & marca \textit{PRELIMINAR} no cabeçalho e no rodapé.\\
 sans & fonte sem serifa como padrão.\\
 abnt & (padrão) perfil ABNT: margens 3/2\,cm, espaço 1,5, citação autor-data, legenda acima da figura.\\
-classico & perfil do formato anterior do GMAp: Latin Modern Sans no documento inteiro, margens laterais de 2\,cm, espaço simples, citação numérica \texttt{[1]}, legenda abaixo da figura (\textbf{Figura 1:} em negrito), capa com revisão, data \texttt{dd/mm/aaaa} e rodapé com o nome do projeto. Não use \texttt{resumo}/\texttt{abstract}. (O nome antigo, \texttt{petrobras}, continua aceito.)\\
+classico & perfil do formato anterior do GMAp: Latin Modern Sans no documento inteiro, margens laterais de 2\,cm, espaço simples, citação numérica \texttt{[1]}, legenda abaixo da figura (\textbf{Figura 1:} em negrito), capa com revisão, data \texttt{dd/mm/aaaa}, rodapé com o nome do projeto e elementos pré-textuais automáticos (Seção~\ref{sec:auto}). Não use \texttt{resumo}/\texttt{abstract}. (O nome antigo, \texttt{petrobras}, continua aceito.)\\
+pretextualautomatico & capa, sumário e listas saem sozinhos no \cs{begin\{document\}} (padrão no perfil \texttt{classico}; Seção~\ref{sec:auto}).\\
+pretextualmanual & desliga os pré-textuais automáticos do perfil \texttt{classico}.\\
+semsiglas & sem lista de abreviaturas e siglas (nem automática nem com \cs{imprimirsiglas}); \cs{gls} continua funcionando, sem link.\\
+semsimbolos & sem lista de símbolos.\\
+semglossario & sem glossário.\\
 \bottomrule
 \end{longtable}
 
@@ -124,6 +129,88 @@ confidencialidade se a opção estiver ativa), \cs{confidencial} (aviso avulso),
 \cs{fecharcarta}\{nome\}\{cargo\} (fecho da carta). Os demais elementos
 (\texttt{resumo}, \cs{listoffigures*}, \cs{tableofcontents*}, \texttt{apendicesenv},
 \texttt{anexosenv}, \cs{fonte}, \cs{nota}) são os do \pkg{abntex2}.
+
+\section{Pré-textuais automáticos}\label{sec:auto}
+No perfil \texttt{classico} (ou com a opção \texttt{pretextualautomatico}
+no perfil ABNT) o documento começa direto no texto:
+\begin{lstlisting}
+\documentclass[classico]{gmap-ufrgs}
+... dados do documento, \sigla, \simbolo, \termo ...
+\begin{document}
+\chapter{Introdução}
+\end{lstlisting}
+No \cs{begin\{document\}} saem, nesta ordem: capa; folha de controle (só se
+houver \cs{verificador}, \cs{aprovador} ou a opção \texttt{confidencial});
+sumário; listas de abreviaturas e siglas e de símbolos (só as que tiverem
+itens usados). No perfil ABNT as listas vêm antes do sumário, como pede a
+NBR 14724. Cada lista pode ser desligada com as opções \texttt{semsiglas},
+\texttt{semsimbolos} e \texttt{semglossario}, p.\,ex.\
+\texttt{\textbackslash documentclass[classico,semsimbolos]\{gmap-ufrgs\}}. Documentos antigos que ainda têm \cs{imprimircapa},
+\cs{pdfbookmark\{\ldots\}\{toc\}}, \cs{tableofcontents*} e \cs{textual}
+continuam compilando: esses comandos são ignorados, com um aviso no
+\texttt{.log}. Para montar os pré-textuais à mão (resumo, lista de figuras,
+\ldots) use a opção \texttt{pretextualmanual}. A nota técnica e a carta não
+são afetadas.
+
+\section{Siglas, símbolos e glossário}\label{sec:siglas}
+A classe carrega o \pkg{glossaries-extra}. Defina os itens no
+\emph{preâmbulo} (direto ou num arquivo lido com \cs{input}) e use-os no texto
+com \cs{gls}; só entram nas listas os itens efetivamente usados. Não é
+preciso rodar \texttt{makeglossaries} nem configurar o \texttt{latexmk} ou o
+Overleaf (modo \texttt{noidx}): basta compilar duas vezes, como para o
+sumário. Valem tanto os comandos do \pkg{glossaries-extra} quanto os atalhos
+da classe:
+
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{6.4cm} p{9.1cm}@{}}
+\toprule
+\cs{sigla}\{rot\}\{SIGLA\}\{Expansão\} ou \cs{newacronym}\{\ldots\} &
+  lista de abreviaturas e siglas; no texto, a 1.ª vez sai ``Expansão
+  (SIGLA)'', depois só ``SIGLA''. Com \texttt{[user1=\{\ldots\}]} (p.\,ex.\
+  o nome em inglês) sai ``Expansão (SIGLA, user1)'' e, na lista, o
+  \texttt{user1} em itálico abaixo da expansão.\\
+\cs{abreviatura}\{rot\}\{et al.\}\{et alii\} &
+  mesma lista; no texto, sempre só a forma curta (sem ponto duplo no fim da
+  frase).\\
+\cs{newabbreviation}\{rot\}\{curta\}\{longa\} &
+  mesma lista; estilo padrão do \pkg{glossaries-extra} (longa (curta)),
+  que pode ser trocado com \cs{setabbreviationstyle}.\\
+\cs{simbolo}\{rot\}\{\$\textbackslash sigma\$\}\{Descrição\} ou
+  \cs{glsxtrnewsymbol}\texttt{[description=\{\ldots\}]}\{rot\}\{símbolo\} &
+  lista de símbolos.\\
+\cs{termo}\{rot\}\{termo\}\{Definição\} ou
+  \cs{newglossaryentry}\{rot\}\{name=\ldots, description=\ldots\} &
+  glossário.\\
+\bottomrule
+\end{longtable}
+
+\begin{lstlisting}
+\sigla[user1={Applied Mechanics Group}]{gmap}{GMAp}{Grupo de Mecânica Aplicada}
+\sigla{mef}{MEF}{Método dos Elementos Finitos}
+\abreviatura{etal}{et al.}{et alii}
+\simbolo{sigma}{$\sigma$}{Tensão normal}
+\termo{malha}{malha}{Divisão do domínio em elementos.}
+...
+O \gls{mef} ...      % primeira vez: Método dos Elementos Finitos (MEF); depois: MEF
+Segundo Silva \gls{etal}, a tensão \gls{sigma} na \gls{malha} ...
+\end{lstlisting}
+\begin{itemize}
+  \item \cs{imprimirsiglas}: lista de abreviaturas e siglas (ordem alfabética);
+  \item \cs{imprimirsimbolos}: lista de símbolos (na ordem em que aparecem no
+    texto, NBR 14724);
+  \item \cs{imprimirglossario}: glossário (pós-textual, ordem alfabética,
+    no sumário). Se não for chamado, sai no fim do documento; chame-o antes
+    dos apêndices e anexos para seguir a ordem da ABNT.
+\end{itemize}
+Com os pré-textuais automáticos as duas listas saem sozinhas; no modo manual,
+chame-as onde quiser (lista vazia não gera página). Na lista de siglas a
+expansão sai com inicial maiúscula. O argumento opcional recebe chaves do
+\pkg{glossaries-extra}, p.\,ex.\
+\cs{sigla}\texttt{[longplural=\{\ldots\}]}\{\ldots\} ou
+\cs{termo}\texttt{[sort=\{acao\}]}\{acao\}\{ação\}\{\ldots\} (a ordenação
+sem ferramenta externa coloca letras acentuadas no fim; use \texttt{sort}
+nesses casos). Também valem \cs{glspl}, \cs{Gls}, \cs{glsxtrshort},
+\cs{glsxtrlong} e \cs{glsxtrfull}. Para mudar o que sai depois da descrição
+de uma sigla na lista, redefina \cs{glsxtrpostdescacronym}.
 
 \section{Assinaturas no texto}
 \cs{blocoassinatura} imprime um bloco de assinatura sem serifa, alinhado à
@@ -249,13 +336,17 @@ são cobertos pela LPPL e \emph{não} fazem parte do pacote do CTAN/\TeX{} Live:
 A classe procura os logos na pasta do documento, em \texttt{fig/}, em
 \texttt{figuras/} e na instalação \TeX. Se um arquivo não for encontrado,
 emite um aviso (dizendo onde obtê-lo) e deixa o espaço em branco.
+Os metadados dos PDFs incluídos (título e nome do arquivo dos logos e
+figuras) não são copiados para o documento final.
 
 \section{Limitações conhecidas}
 \begin{itemize}
   \item Motor recomendado: pdf\LaTeX{}. Lua\LaTeX{} e Xe\LaTeX{} compilam,
     mas são menos testados.
-  \item Margens ABNT (3\,cm esquerda, 2\,cm direita); margens laterais de
-    2\,cm só com a opção \texttt{classico}.
+  \item Margens ABNT (3\,cm superior e esquerda, 2\,cm inferior e direita);
+    margens laterais de 2\,cm só com a opção \texttt{classico}. O cabeçalho
+    (logos) e o rodapé ficam dentro das margens superior e inferior, perto
+    das bordas da página.
   \item Com \texttt{english}, \texttt{\textbackslash citeonline} ainda usa
     ``e'' entre autores (texto fixo do \pkg{abntex2cite}).
   \item Nomes de comando não podem começar por \texttt{end} (restrição do
@@ -264,6 +355,16 @@ emite um aviso (dizendo onde obtê-lo) e deixa o espaço em branco.
 
 \section{Histórico}
 \begin{description}
+  \item[v0.2 (2026/11/18)] Pré-textuais automáticos (capa, sumário, listas)
+    no perfil \texttt{classico} e com a opção \texttt{pretextualautomatico};
+    opções \texttt{pretextualmanual}, \texttt{semsiglas},
+    \texttt{semsimbolos} e \texttt{semglossario}. Listas automáticas de siglas, de símbolos
+    e glossário com o \pkg{glossaries-extra} (\cs{sigla}, \cs{abreviatura},
+    \cs{simbolo}, \cs{termo}, além dos comandos do próprio pacote, \cs{imprimirsiglas},
+    \cs{imprimirsimbolos}, \cs{imprimirglossario}), sem ferramenta externa.
+    Os metadados dos PDFs incluídos (p.\,ex.\ o título dos logos) não vão
+    mais para o documento. Cabeçalho e rodapé dentro das margens ABNT.
+    Novo exemplo \texttt{exemplo-classico.tex}.
   \item[v0.1 (2026/11/14)] Os logos da UFRGS e do GMAp saem do pacote do
     CTAN (que fica inteiramente sob a LPPL e pode entrar no \TeX{} Live);
     continuam no repositório Git e no template do Overleaf. A classe também
@@ -293,7 +394,14 @@ confidentiality notice) with \cs{imprimirfolhadecontrole}. Figure captions go
 above and the source line (\cs{fonte}) below. The \texttt{classico} option
 switches to the former GMAp layout (Latin Modern Sans, 2\,cm side margins,
 single spacing, numeric citations, captions below figures, revision on the
-cover, dd/mm/yyyy dates). \cs{figura}[keys]\{file\}\{caption\} inserts an
+cover, dd/mm/yyyy dates) and prints the cover, table of contents and lists
+of acronyms/symbols automatically at \cs{begin\{document\}} (option
+\texttt{pretextualmanual} turns this off; \texttt{pretextualautomatico}
+turns it on in the ABNT profile). Acronyms, symbols and glossary terms are
+defined in the preamble with \cs{sigla}, \cs{abreviatura}, \cs{simbolo} and
+\cs{termo} (or the usual \pkg{glossaries-extra} commands), used
+with \cs{gls}, and listed automatically (no external indexing tool) with
+\cs{imprimirsiglas}, \cs{imprimirsimbolos} and \cs{imprimirglossario}. \cs{figura}[keys]\{file\}\{caption\} inserts an
 image at scale 1 with an automatic \texttt{fig:}\textit{file} label (the starred
 form places it exactly there). \cs{blocoassinatura}[keys]\{line 1
 \textbackslash\textbackslash{} line 2 \ldots\} prints a right-aligned sans-serif

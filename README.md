@@ -26,6 +26,8 @@ Files
 - `gmap-codigo.sty`  optional: code and command-line environments
 - `doc/gmap-ufrgs-doc.tex` / `.pdf`  manual (Portuguese, with an English summary)
 - `example/exemplo-minimo.tex`  minimal compilable example
+- `example/exemplo-classico.tex`  `classico` profile: automatic cover, table of
+  contents, lists of acronyms/symbols and glossary
 
 Only in the Git repository (not distributed on CTAN):
 - `fig/gmap-logo-ufrgs.pdf`, `fig/gmap-logo-gmap.pdf`  UFRGS and GMAp logos,

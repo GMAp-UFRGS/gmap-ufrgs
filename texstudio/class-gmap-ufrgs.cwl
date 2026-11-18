@@ -21,6 +21,8 @@
 #include:xspace
 #include:abntex2cite
 #include:enumitem
+#include:substr
+#include:glossaries-extra
 
 #keyvals:\documentclass/gmap-ufrgs
 relatorio
@@ -34,6 +36,11 @@ brazil
 confidencial
 preliminar
 sans
+pretextualautomatico
+pretextualmanual
+semsiglas
+semsimbolos
+semglossario
 #endkeyvals
 
 # Metadados
@@ -85,6 +92,19 @@ espaco=##L
 \imprimirfolhadecontrole
 \confidencial
 \fecharcarta{nome}{cargo}
+
+# Siglas, simbolos e glossario (glossaries-extra, sem ferramenta externa)
+\abreviatura{rotulo}{curta}{longa}
+\abreviatura[chaves]{rotulo}{curta}{longa}
+\sigla{rotulo}{SIGLA}{expansao}
+\sigla[chaves]{rotulo}{SIGLA}{expansao}
+\simbolo{rotulo}{simbolo}{descricao}
+\simbolo[chaves]{rotulo}{simbolo}{descricao}
+\termo{rotulo}{termo}{definicao}
+\termo[chaves]{rotulo}{termo}{definicao}
+\imprimirsiglas
+\imprimirsimbolos
+\imprimirglossario
 
 # Figuras
 \figura{imagefile}{legenda}
