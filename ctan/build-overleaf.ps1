@@ -17,7 +17,7 @@ $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $Stage = Join-Path ([System.IO.Path]::GetTempPath()) ("gmap-ufrgs-overleaf-" + [guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Force -Path $Stage | Out-Null
 
-Copy-Item (Join-Path $Root "gmap-ufrgs.cls"), (Join-Path $Root "gmap-math.sty"), (Join-Path $Root "gmap-codigo.sty") -Destination $Stage
+Copy-Item (Join-Path $Root "gmap-ufrgs.cls"), (Join-Path $Root "gmap-math.sty"), (Join-Path $Root "gmap-codigo.sty"), (Join-Path $Root "gmap-figuras.sty") -Destination $Stage
 $Logos = Get-ChildItem -Path (Join-Path $Root "fig") -Filter "gmap-logo-*"
 if ($Logos.Count -ne 2) { Write-Error "Esperava 2 logos em fig/, encontrei $($Logos.Count)"; exit 1 }
 foreach ($l in $Logos) { Copy-Item $l.FullName -Destination $Stage }
@@ -27,7 +27,7 @@ $Ex = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "example\exemplo-minimo.t
 $Ex = $Ex -replace '(?m)^% Exemplo minimo.*\r?\n', ''
 $Header = @"
 % Template do GMAp/UFRGS para o Overleaf (classe gmap-ufrgs).
-% A classe, os pacotes opcionais (gmap-math, gmap-codigo) e os logos da UFRGS
+% A classe, os pacotes opcionais (gmap-math, gmap-codigo, gmap-figuras) e os logos da UFRGS
 % e do GMAp estao na raiz deste projeto. Manual e versao mais nova:
 % https://ctan.org/pkg/gmap-ufrgs e https://github.com/GMAp-UFRGS/gmap-ufrgs
 % Os logos sao marcas da UFRGS/GMAp: uso reservado a documentos da UFRGS/GMAp.

@@ -44,7 +44,7 @@ $Stage = Join-Path ([System.IO.Path]::GetTempPath()) ("gmap-ufrgs-ctan-" + [guid
 $Pkg = Join-Path $Stage "gmap-ufrgs"
 New-Item -ItemType Directory -Force -Path $Pkg, (Join-Path $Pkg "doc"), (Join-Path $Pkg "example") | Out-Null
 
-Copy-Item (Join-Path $Root "gmap-ufrgs.cls"), (Join-Path $Root "gmap-math.sty"), (Join-Path $Root "gmap-codigo.sty"), (Join-Path $Root "README.md") -Destination $Pkg
+Copy-Item (Join-Path $Root "gmap-ufrgs.cls"), (Join-Path $Root "gmap-math.sty"), (Join-Path $Root "gmap-codigo.sty"), (Join-Path $Root "gmap-figuras.sty"), (Join-Path $Root "README.md") -Destination $Pkg
 Copy-Item (Join-Path $Root "doc\gmap-ufrgs-doc.tex"), (Join-Path $Root "doc\gmap-ufrgs-doc.pdf") -Destination (Join-Path $Pkg "doc")
 Copy-Item (Join-Path $Root "example\exemplo-minimo.tex"), (Join-Path $Root "example\exemplo-classico.tex"), (Join-Path $Root "example\latexmkrc") -Destination (Join-Path $Pkg "example")
 

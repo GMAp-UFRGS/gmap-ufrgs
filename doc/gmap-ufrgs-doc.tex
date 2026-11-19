@@ -339,6 +339,65 @@ Ambientes \texttt{code}, \texttt{tabelaverb}, \texttt{linhacomando} e
 \texttt{comandos} (via \pkg{fancyvrb}) e o estilo \texttt{gmappython} do
 \pkg{listings}.
 
+\subsection{\pkg{gmap-figuras}}
+Figuras com várias subfiguras, cortadas em blocos (páginas) com a legenda
+repetida e ``(continuação)'', sem montar \texttt{figure}/\cs{ContinuedFloat}
+à mão. Usa as subfiguras do próprio \pkg{memoir}, sem carregar \pkg{caption}
+nem \pkg{subcaption} (que mudariam o formato das legendas da classe), e segue
+o \cs{figura}: legenda acima no perfil ABNT e abaixo no \texttt{classico},
+\texttt{fonte} abaixo de cada bloco.
+\begin{lstlisting}
+\usepackage{gmap-figuras}
+...
+% lista de {arquivo}{sublegenda}; tudo numa figura flutuante
+\figuras{Viga em três estágios.}{
+  {viga-1}{Início.}, {viga-2}{Meio.}, {viga-3}{Fim.}}
+% exatamente aqui ([H]); 1 subfigura no 1.o bloco, 2 no seguinte
+\figuras*[porpagina={1,2}, rotulo=fig:viga]{Viga.}{
+  {viga-1}{Início.}, {viga-2}{Meio.}, {viga-3}{Fim.}}
+% 2 colunas, blocos de 4 (o último número se repete)
+\figuras[colunas=2, porpagina=4]{Malhas.}{{m1}{A.}, {m2}{B.}, ...}
+\end{lstlisting}
+\cs{serieFiguras} gera a lista a partir de uma série de valores: no padrão do
+arquivo \texttt{\#1} é o valor como escrito; na sublegenda, com vírgula
+decimal (chave \texttt{decimal}). Os valores podem estar num comando.
+\begin{lstlisting}
+\newcommand\espessuras{4.0, 9.0, 13.0}
+\serieFiguras*[rotulo=fig:abaco, porpagina={1,2}]
+  {figuras/abaco e=#1.pdf}      % abaco e=4.0.pdf, abaco e=9.0.pdf, ...
+  {\espessuras}
+  {Espessura de #1~mm.}         % Espessura de 4,0 mm.
+  {Ábacos para diferentes espessuras.}
+\end{lstlisting}
+Dentro de um \cs{newcommand}/\cs{NewDocumentCommand} escreva \texttt{\#\#1}
+no lugar de \texttt{\#1}.
+\begin{itemize}
+  \item Chaves próprias: \texttt{porpagina} (subfiguras por bloco; sem ela,
+    tudo num bloco), \texttt{colunas} (padrão 1), \texttt{espaco} (entre
+    linhas, padrão \texttt{0.5cm}), \texttt{continuacao} (texto dos blocos
+    seguintes; padrão ``(continuação)''/``(continued)'') e \texttt{decimal}
+    (padrão vírgula). Valem também as do \cs{figura}: \texttt{fonte},
+    \texttt{rotulo}, \texttt{pos}, \texttt{tamanho}, \texttt{escala}, chaves
+    do \cs{includegraphics}, \ldots
+  \item Cada subfigura ocupa a largura da sua coluna, reduzida se preciso
+    para o bloco caber na página; \texttt{tamanho=0.8} = 80\,\% da coluna.
+  \item Rótulos: a figura recebe \texttt{rotulo} (padrão
+    \texttt{fig:}\textit{primeiro arquivo}); cada subfigura,
+    \textit{rotulo}\texttt{-}\textit{n} (\texttt{fig:viga-2}) em \cs{figuras} ou
+    \textit{rotulo}\texttt{-}\textit{valor} (\texttt{fig:abaco-9.0}) em
+    \cs{serieFiguras}. \cs{ref} dá ``3'' e ``3(b)''.
+  \item Só o primeiro bloco entra na lista de figuras; os seguintes repetem
+    o número.
+\end{itemize}
+\cs{definirmapa}\{nome\}\{chave=valor, \ldots\} guarda uma tabela de
+correspondência e \cs{mapa}\{nome\}\{chave\} devolve o valor (é expansível:
+serve dentro de nomes de arquivo). A chave \texttt{*} é o valor para chaves
+ausentes; sem ela, uma chave ausente dá erro.
+\begin{lstlisting}
+\definirmapa{capacete}{360=1, 400=2, 450=3}
+HC\mapa{capacete}{360}          % HC1
+\end{lstlisting}
+
 \section{Listas auxiliares}
 Ambientes \texttt{listalfa} (\textit{(a), (b)\ldots}), \texttt{listtraco}
 (travessão) e \texttt{checklist} (caixas), e os comandos de tabela
@@ -438,6 +497,11 @@ the \texttt{assinaturas} environment (keys: \texttt{imagem}, \texttt{altura},
 end of the document, after references, appendices, annexes and the automatic
 lists (\texttt{novapagina} puts the deferred blocks on a page of their own);
 \cs{imprimirassinaturas} prints deferred blocks on the spot.
+The optional package \pkg{gmap-figuras} adds \cs{figuras}[keys]\{caption\}\{\{file\}\{subcaption\}, \ldots\}
+(subfigures split into blocks across pages with a ``continued'' caption; keys
+\texttt{porpagina}, \texttt{colunas}, \texttt{espaco}, \texttt{continuacao}),
+\cs{serieFiguras} (the same, generated from a file-name pattern and a list of
+values) and \cs{definirmapa}/\cs{mapa} (key=value lookup tables).
 Installation: through \texttt{tlmgr} or MiKTeX,
 or by copying the \texttt{.cls}/\texttt{.sty} files next to your document.
 License: LPPL 1.3c or later (code and documentation). The UFRGS and GMAp

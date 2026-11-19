@@ -4,6 +4,7 @@
 % o texto comeca direto no capitulo. As listas de simbolos e de siglas e o
 % glossario saem sozinhos no fim do documento.
 \documentclass[classico]{gmap-ufrgs}
+\usepackage{gmap-figuras}% \figuras e \serieFiguras (subfiguras)
 
 \projeto{Projeto Exemplo}
 \numerodoc{GMAp-RT-000/2026}
@@ -40,6 +41,14 @@ segunda vez, s\'o a sigla: \gls{mef}. Segundo Silva \gls{etal}, a
 \gls{malha} tem tens\~ao \gls{sigma} e m\'odulo \gls{E} em cada \gls{no}.
 
 \figura[fonte={Elaborada pelos autores.}]{example-image-a}{Figura de exemplo.}
+
+% Subfiguras (pacote gmap-figuras): 2 lado a lado no 1.o bloco, a 3.a no
+% bloco seguinte, com "(continuacao)". Rotulos fig:abc e fig:abc-1, -2, -3.
+A Figura~\ref{fig:abc} tem tr\^es partes; a Figura~\ref{fig:abc-3} est\'a
+na continua\c{c}\~ao.
+\figuras*[rotulo=fig:abc, colunas=2, porpagina=2]{Subfiguras de exemplo.}{
+  {example-image-a}{Primeira.}, {example-image-b}{Segunda.},
+  {example-image-c}{Terceira.}}
 
 % nofim: a assinatura sai no fim de tudo (depois das listas);
 % novapagina: numa pagina so dela

@@ -17,7 +17,8 @@
 %% The Current Maintainer of this work is Boris N. Rojo Tanzi.
 %%
 %% This work consists of the files gmap-ufrgs.cls, gmap-math.sty,
-%% gmap-codigo.sty, doc/gmap-ufrgs-doc.tex, example/exemplo-minimo.tex and
+%% gmap-codigo.sty, gmap-figuras.sty, doc/gmap-ufrgs-doc.tex,
+%% example/exemplo-minimo.tex and
 %% example/exemplo-classico.tex.
 %% The institutional logos gmap-logo-ufrgs.pdf and gmap-logo-gmap.pdf, used by
 %% default, are NOT part of this work and are NOT distributed with it: they

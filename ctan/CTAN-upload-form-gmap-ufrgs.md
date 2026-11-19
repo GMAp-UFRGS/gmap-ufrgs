@@ -46,7 +46,7 @@ LaTeX class for technical reports of GMAp/UFRGS, compliant with ABNT standards
 
 **Description** (sin cambios respecto a la v0.0)
 ```
-The gmap-ufrgs class extends abntex2 to typeset the technical reports, technical notes and letters of the Applied Mechanics Group (GMAp) at the Universidade Federal do Rio Grande do Sul (UFRGS), Brazil, following the Brazilian ABNT standards (NBR 10719, 14724, 6023, 10520, 6024, 6027, 6028). It provides the cover page, a control sheet with author/checker/approver signatures, an optional confidentiality notice, a "preliminary" mark and a one-line figure command. Portuguese is the default language and English is available as an option. Project data (team, process numbers, footer text) are set by commands in the document and never hard-coded in the class. Optional packages provide math shortcuts (gmap-math) and code environments (gmap-codigo).
+The gmap-ufrgs class extends abntex2 to typeset the technical reports, technical notes and letters of the Applied Mechanics Group (GMAp) at the Universidade Federal do Rio Grande do Sul (UFRGS), Brazil, following the Brazilian ABNT standards (NBR 10719, 14724, 6023, 10520, 6024, 6027, 6028). It provides the cover page, a control sheet with author/checker/approver signatures, an optional confidentiality notice, a "preliminary" mark and a one-line figure command. Portuguese is the default language and English is available as an option. Project data (team, process numbers, footer text) are set by commands in the document and never hard-coded in the class. Optional packages provide math shortcuts (gmap-math), code environments (gmap-codigo) and figures with subfigures split across pages (gmap-figuras).
 ```
 
 **Suggested CTAN directory**
@@ -74,6 +74,7 @@ gmap-ufrgs/
   gmap-ufrgs.cls
   gmap-math.sty
   gmap-codigo.sty
+  gmap-figuras.sty
   README.md
   doc/gmap-ufrgs-doc.tex
   doc/gmap-ufrgs-doc.pdf

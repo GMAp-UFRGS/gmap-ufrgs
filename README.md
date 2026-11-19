@@ -24,6 +24,8 @@ Files
 - `gmap-ufrgs.cls`   the class
 - `gmap-math.sty`    optional: vector/matrix/derivative shortcuts
 - `gmap-codigo.sty`  optional: code and command-line environments
+- `gmap-figuras.sty` optional: figures with subfigures split across pages,
+  figure series from a list of values, key=value maps
 - `doc/gmap-ufrgs-doc.tex` / `.pdf`  manual (Portuguese, with an English summary)
 - `example/exemplo-minimo.tex`  minimal compilable example
 - `example/exemplo-classico.tex`  `classico` profile: automatic cover, table of
