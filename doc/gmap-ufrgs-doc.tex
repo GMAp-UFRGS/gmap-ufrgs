@@ -88,7 +88,7 @@ english & textos fixos em inglês (idioma ativo no início do documento).\\
 confidencial & imprime o aviso de confidencialidade na folha de controle.\\
 preliminar & marca \textit{PRELIMINAR} no cabeçalho e no rodapé.\\
 sans & fonte sem serifa como padrão.\\
-abnt & (padrão) perfil ABNT: margens 3/2\,cm, espaço 1,5, citação autor-data, legenda acima da figura.\\
+abnt & (padrão) perfil ABNT: margens 3/2\,cm, espaço 1,5, citação autor-data, legenda acima da figura (\texttt{Figura 1: Texto}).\\
 classico & perfil do formato anterior do GMAp: Latin Modern Sans no documento inteiro, margens laterais de 2\,cm, espaço simples, citação numérica \texttt{[1]}, legenda abaixo da figura (\textbf{Figura 1:} em negrito), capa com revisão, data \texttt{dd/mm/aaaa}, rodapé com o nome do projeto e elementos pré-textuais automáticos (Seção~\ref{sec:auto}). Não use \texttt{resumo}/\texttt{abstract}. (O nome antigo, \texttt{petrobras}, continua aceito.)\\
 pretextualautomatico & capa, sumário e listas saem sozinhos no \cs{begin\{document\}} (padrão no perfil \texttt{classico}; Seção~\ref{sec:auto}).\\
 pretextualmanual & desliga os pré-textuais automáticos do perfil \texttt{classico}.\\
@@ -143,7 +143,8 @@ No \cs{begin\{document\}} saem, nesta ordem: capa; folha de controle (só se
 houver \cs{verificador}, \cs{aprovador} ou a opção \texttt{confidencial});
 sumário; listas de abreviaturas e siglas e de símbolos (só as que tiverem
 itens usados). No perfil ABNT as listas vêm antes do sumário, como pede a
-NBR 14724. Cada lista pode ser desligada com as opções \texttt{semsiglas},
+NBR 14724. No perfil \texttt{classico} sai só o sumário: as listas de
+símbolos e de abreviaturas e siglas e o glossário saem no fim do documento. Cada lista pode ser desligada com as opções \texttt{semsiglas},
 \texttt{semsimbolos} e \texttt{semglossario}, p.\,ex.\
 \texttt{\textbackslash documentclass[classico,semsimbolos]\{gmap-ufrgs\}}. Documentos antigos que ainda têm \cs{imprimircapa},
 \cs{pdfbookmark\{\ldots\}\{toc\}}, \cs{tableofcontents*} e \cs{textual}
@@ -174,9 +175,10 @@ da classe:
 \cs{newabbreviation}\{rot\}\{curta\}\{longa\} &
   mesma lista; estilo padrão do \pkg{glossaries-extra} (longa (curta)),
   que pode ser trocado com \cs{setabbreviationstyle}.\\
-\cs{simbolo}\{rot\}\{\$\textbackslash sigma\$\}\{Descrição\} ou
+\cs{simbolo}\{rot\}\{\textbackslash ensuremath\{\textbackslash sigma\}\}\{Descrição\} ou
   \cs{glsxtrnewsymbol}\texttt{[description=\{\ldots\}]}\{rot\}\{símbolo\} &
-  lista de símbolos.\\
+  lista de símbolos. Escreva o símbolo com \cs{ensuremath}, e não entre
+  \texttt{\$}: assim \cs{gls} funciona no texto e dentro de equações.\\
 \cs{termo}\{rot\}\{termo\}\{Definição\} ou
   \cs{newglossaryentry}\{rot\}\{name=\ldots, description=\ldots\} &
   glossário.\\
@@ -187,7 +189,7 @@ da classe:
 \sigla[user1={Applied Mechanics Group}]{gmap}{GMAp}{Grupo de Mecânica Aplicada}
 \sigla{mef}{MEF}{Método dos Elementos Finitos}
 \abreviatura{etal}{et al.}{et alii}
-\simbolo{sigma}{$\sigma$}{Tensão normal}
+\simbolo{sigma}{\ensuremath{\sigma}}{Tensão normal}
 \termo{malha}{malha}{Divisão do domínio em elementos.}
 ...
 O \gls{mef} ...      % primeira vez: Método dos Elementos Finitos (MEF); depois: MEF
@@ -200,6 +202,11 @@ Segundo Silva \gls{etal}, a tensão \gls{sigma} na \gls{malha} ...
   \item \cs{imprimirglossario}: glossário (pós-textual, ordem alfabética,
     no sumário). Se não for chamado, sai no fim do documento; chame-o antes
     dos apêndices e anexos para seguir a ordem da ABNT.
+  \item No perfil \texttt{classico} as listas de símbolos e de abreviaturas
+    e siglas e o glossário saem sempre no fim do documento (depois das
+    referências, apêndices e anexos), nessa ordem e no sumário;
+    \cs{imprimirsiglas}, \cs{imprimirsimbolos} e \cs{imprimirglossario} são
+    ignorados.
 \end{itemize}
 Com os pré-textuais automáticos as duas listas saem sozinhas; no modo manual,
 chame-as onde quiser (lista vazia não gera página). Na lista de siglas a
@@ -238,8 +245,27 @@ Chaves (no comando, no ambiente ou, para todo o documento, em
   \item \texttt{linha}: traço para assinatura à mão, acima do nome;
   \item \texttt{posicao=direita|centro|esquerda} (padrão: direita; no ambiente
     \texttt{assinaturas}, centro);
-  \item \texttt{espaco=1cm}: espaço vertical antes do bloco.
+  \item \texttt{espaco=1cm}: espaço vertical antes do bloco;
+  \item \texttt{nofim}: adia o bloco (ou o ambiente) para o fim do documento;
+  \item \texttt{novapagina}: começa uma página nova antes do bloco. Com
+    \texttt{nofim}, as assinaturas guardadas saem juntas numa página só
+    delas (basta uma delas ter a chave).
 \end{itemize}
+Sem \texttt{nofim}, a assinatura sai exatamente onde o comando está. Com
+\texttt{nofim}, ela é guardada e sai no fim de tudo: depois das referências,
+apêndices e anexos e também das listas automáticas de símbolos, de siglas e do
+glossário. Assim a assinatura pode ficar perto dos dados do documento, no
+início do arquivo:
+\begin{lstlisting}
+\chapter{Introdução}
+\blocoassinatura[nofim]{Prof. Fulano de Tal\\ Coordenador do projeto}
+...
+\end{lstlisting}
+\cs{configurarassinatura}\{nofim\} adia todas as assinaturas
+(\cs{configurarassinatura}\{nofim, novapagina\} as põe numa página à parte), e
+\cs{imprimirassinaturas} imprime as guardadas no ponto em que for usado. As
+assinaturas guardadas saem na ordem em que foram escritas, uma vez só.
+
 O \cs{assinatura} do \pkg{abntex2} (traço centralizado) continua disponível.
 
 \section{Figuras e tabelas (ABNT)}
@@ -407,7 +433,12 @@ form places it exactly there). \cs{blocoassinatura}[keys]\{line 1
 \textbackslash\textbackslash{} line 2 \ldots\} prints a right-aligned sans-serif
 signature block anywhere in the text; several people go side by side inside
 the \texttt{assinaturas} environment (keys: \texttt{imagem}, \texttt{altura},
-\texttt{linha}, \texttt{posicao}, \texttt{espaco}). Installation: through \texttt{tlmgr} or MiKTeX,
+\texttt{linha}, \texttt{posicao}, \texttt{espaco}, \texttt{nofim},
+\texttt{novapagina}). With \texttt{nofim} the block is deferred to the very
+end of the document, after references, appendices, annexes and the automatic
+lists (\texttt{novapagina} puts the deferred blocks on a page of their own);
+\cs{imprimirassinaturas} prints deferred blocks on the spot.
+Installation: through \texttt{tlmgr} or MiKTeX,
 or by copying the \texttt{.cls}/\texttt{.sty} files next to your document.
 License: LPPL 1.3c or later (code and documentation). The UFRGS and GMAp
 logos used by default are trademarks, not covered by the LPPL and not part of

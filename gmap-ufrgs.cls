@@ -106,8 +106,12 @@
   \let\today\gmap@hojenum
   \captionnamefont{\footnotesize\bfseries}
   \captiontitlefont{\footnotesize\bfseries}
-  \AtBeginDocument{\captiondelim{:~}}
 \fi
+% legendas "Figura 1: Texto" (e nao "Figura 1 -- Texto") em todos os perfis,
+% tambem nas listas de figuras e de tabelas
+\AtBeginDocument{\captiondelim{:~}}
+\renewcommand*{\cftfigureaftersnum}{:\hfill}
+\renewcommand*{\cfttableaftersnum}{:\hfill}
 
 %---------------------------------------------------------------------
 % Pacotes
@@ -126,6 +130,8 @@
 % metadados (titulo, nome do arquivo, numero da pagina): leitores de PDF
 % nao mostram, p.ex., "logo_GMAp" ao passar sobre o logo ou nas propriedades
 \ifdefined\pdfsuppressptexinfo \pdfsuppressptexinfo=14 \fi
+% os dois logos tem "page group": aviso inofensivo do pdfTeX a cada pagina
+\ifdefined\pdfsuppresswarningpagegroup \pdfsuppresswarningpagegroup=1 \fi
 \ifLuaTeX\ifdefined\pdfvariable \pdfvariable suppressoptionalinfo 14 \fi\fi
 % Pastas onde \includegraphics e \figura procuram as imagens
 \graphicspath{{fig/}{figuras/}}
@@ -499,13 +505,20 @@
 %   chaves: imagem=arquivo (imagem da assinatura, acima do texto),
 %     altura=1.2cm (altura da imagem ou do espaco para assinar),
 %     linha (traco para assinatura a mao), posicao=direita|centro|esquerda,
-%     espaco=1cm (espaco vertical antes do bloco)
+%     espaco=1cm (espaco vertical antes do bloco),
+%     nofim (adia o bloco para o fim do documento, ver abaixo),
+%     novapagina (comeca uma pagina nova antes do bloco; com nofim, as
+%       assinaturas guardadas saem juntas numa pagina so delas)
 %   Varias pessoas lado a lado (blocos centrados e distribuidos):
 %   \begin{assinaturas}[chaves]
 %     \blocoassinatura{...}
 %     \blocoassinatura{...}
 %   \end{assinaturas}
 %   \configurarassinatura{chaves} muda o padrao de todas as assinaturas.
+%   Sem nofim, a assinatura sai onde o comando esta. Com nofim, ela e'
+%   guardada e sai no fim de tudo: depois das referencias, apendices,
+%   anexos e das listas automaticas de simbolos, siglas e glossario.
+%   \imprimirassinaturas imprime ali as guardadas.
 %---------------------------------------------------------------------
 \ExplSyntaxOn
 \tl_new:N   \l__gmap_ass_img_tl
@@ -514,6 +527,11 @@
 \skip_new:N \l__gmap_ass_espaco_skip
 \bool_new:N \l__gmap_ass_linha_bool
 \bool_new:N \l__gmap_ass_grupo_bool
+\bool_new:N \l__gmap_ass_nofim_bool
+\bool_new:N \l__gmap_ass_novapag_bool
+\bool_new:N \g__gmap_ass_novapag_bool
+\tl_new:N   \g__gmap_ass_fim_tl
+\tl_new:N   \l__gmap_ass_fim_tl
 
 \keys_define:nn { gmap/assinatura }
   {
@@ -531,6 +549,10 @@
           { \clist_item:nn { r , c , l , r , c , l } { \l_keys_choice_int } }
       } ,
     posicao .initial:n  = direita ,
+    nofim   .bool_set:N = \l__gmap_ass_nofim_bool ,
+    nofim   .default:n  = true ,
+    novapagina .bool_set:N = \l__gmap_ass_novapag_bool ,
+    novapagina .default:n  = true ,
   }
 
 % o bloco: [imagem ou espaco] [traco] linhas de texto, numa tabela de uma coluna
@@ -562,31 +584,72 @@
         \hspace* { \fill }
       }
       {
-        \par
-        \vspace { \l__gmap_ass_espaco_skip }
-        \noindent
-        \use:e { \exp_not:N \makebox [ \exp_not:N \linewidth ] [ \l__gmap_ass_pos_tl ] }
-          { \__gmap_ass_bloco:n {#2} }
-        \par \bigskip
+        \bool_if:NTF \l__gmap_ass_nofim_bool
+          {
+            \tl_gput_right:Nn \g__gmap_ass_fim_tl
+              { \blocoassinatura [ #1 , nofim = false , novapagina = false ] {#2} }
+            \bool_if:NT \l__gmap_ass_novapag_bool
+              { \bool_gset_true:N \g__gmap_ass_novapag_bool }
+          }
+          {
+            \par
+            \bool_if:NT \l__gmap_ass_novapag_bool { \clearpage }
+            \vspace { \l__gmap_ass_espaco_skip }
+            \noindent
+            \use:e { \exp_not:N \makebox [ \exp_not:N \linewidth ] [ \l__gmap_ass_pos_tl ] }
+              { \__gmap_ass_bloco:n {#2} }
+            \par \bigskip
+          }
       }
     \group_end:
     \ignorespaces
   }
 
-\NewDocumentEnvironment { assinaturas } { O{} }
+\NewDocumentEnvironment { assinaturas } { O{} +b }
   {
-    \par
     \keys_set:nn { gmap/assinatura } { posicao = centro , #1 }
-    \vspace { \l__gmap_ass_espaco_skip }
-    \bool_set_true:N \l__gmap_ass_grupo_bool
-    \skip_set:Nn \parfillskip { 0pt }
-    \noindent \hspace* { \fill }
-    \ignorespaces
+    \bool_if:NTF \l__gmap_ass_nofim_bool
+      {
+        \tl_gput_right:Nn \g__gmap_ass_fim_tl
+          { \begin { assinaturas } [ #1 , nofim = false , novapagina = false ] #2 \end { assinaturas } }
+        \bool_if:NT \l__gmap_ass_novapag_bool
+          { \bool_gset_true:N \g__gmap_ass_novapag_bool }
+        \ignorespacesafterend
+      }
+      {
+        \par
+        \bool_if:NT \l__gmap_ass_novapag_bool { \clearpage }
+        \vspace { \l__gmap_ass_espaco_skip }
+        \bool_set_true:N \l__gmap_ass_grupo_bool
+        \skip_set:Nn \parfillskip { 0pt }
+        \noindent \hspace* { \fill }
+        \ignorespaces #2
+        \par \bigskip % cada \blocoassinatura ja deixa um \fill depois de si
+      }
   }
-  { \par \bigskip }% cada \blocoassinatura ja deixa um \fill depois de si
+  { }
 
 \NewDocumentCommand \configurarassinatura { m }
   { \keys_set:nn { gmap/assinatura } {#1} }
+
+% assinaturas guardadas com nofim: saem uma vez so, todas juntas (numa
+% pagina nova se alguma pediu novapagina)
+\cs_new_protected:Npn \__gmap_ass_fim:
+  {
+    \tl_if_empty:NF \g__gmap_ass_fim_tl
+      {
+        \tl_set_eq:NN \l__gmap_ass_fim_tl \g__gmap_ass_fim_tl
+        \tl_gclear:N \g__gmap_ass_fim_tl
+        \bool_if:NT \g__gmap_ass_novapag_bool { \par \clearpage }
+        \bool_gset_false:N \g__gmap_ass_novapag_bool
+        \l__gmap_ass_fim_tl
+      }
+  }
+\NewDocumentCommand \imprimirassinaturas { } { \__gmap_ass_fim: }
+% no fim de tudo: depois das listas automaticas de simbolos, siglas e
+% glossario (que tambem estao no enddocument, com o rotulo gmap-ufrgs)
+\AddToHook { enddocument } [ gmap-ufrgs/assinaturas ] { \__gmap_ass_fim: }
+\DeclareHookRule { enddocument } { gmap-ufrgs } { before } { gmap-ufrgs/assinaturas }
 \ExplSyntaxOff
 
 %---------------------------------------------------------------------
@@ -808,7 +871,7 @@
 %   \sigla[chaves]{rotulo}{SIGLA}{Expansao}         |  (= \newacronym)
 %   \abreviatura[chaves]{rotulo}{et al.}{et alii}   /  (so a forma curta)
 %   \glsxtrnewsymbol[description={...}]{rotulo}{$\sigma$}  \  simbolos
-%   \simbolo[chaves]{rotulo}{$\sigma$}{Descricao}          /
+%   \simbolo[chaves]{rotulo}{\ensuremath{\sigma}}{Descricao} / (nao $...$)
 %   \newglossaryentry{rotulo}{name={...},description={...}} \ glossario
 %   \termo[chaves]{rotulo}{Termo}{Definicao}                /
 % (definidos no preambulo). No texto: \gls{rotulo} (\glspl, \Gls, \glsxtrshort,
@@ -821,7 +884,10 @@
 % Listas: \imprimirsiglas e \imprimirsimbolos (pre-textuais, sem pagina
 % propria se vazias) e \imprimirglossario (pos-textual, no sumario; se nao
 % for chamado, sai no fim do documento). Com os pre-textuais automaticos,
-% as listas de siglas e de simbolos saem sozinhas.
+% as listas de siglas e de simbolos saem sozinhas. No perfil classico as
+% listas de simbolos e de siglas e o glossario saem sempre no fim do
+% documento (nessa ordem), e \imprimirsiglas, \imprimirsimbolos e \imprimirglossario
+% sao ignorados.
 %---------------------------------------------------------------------
 \RequirePackage[abbreviations,symbols,nonumberlist,nogroupskip,
   translate=false]{glossaries-extra}
@@ -900,15 +966,33 @@
   \ifcsdef{gmap@feito@#1}%
     {\PackageWarning{gmap-ufrgs}{\string#2 already printed, ignored}}%
     {\csgdef{gmap@feito@#1}{}#3}}
-\newcommand\imprimirsiglas{\gmap@umavez{siglas}{\imprimirsiglas}%
-  {\gmap@lista{\glsxtrabbrvtype}{\listadesiglasname}{standard}{gmap}{\gmap@cab@pre}}}
+% #1 titulo (\gmap@cab@pre ou \gmap@cab@pos)
+\newcommand\gmap@imprimirsiglas[1]{\gmap@umavez{siglas}{\imprimirsiglas}%
+  {\gmap@lista{\glsxtrabbrvtype}{\listadesiglasname}{standard}{gmap}{#1}}}
 % simbolos na ordem em que aparecem no texto (ABNT NBR 14724)
-\newcommand\imprimirsimbolos{\gmap@umavez{simbolos}{\imprimirsimbolos}%
-  {\gmap@lista{symbols}{\listadesimbolosname}{use}{gmap}{\gmap@cab@pre}}}
-\newcommand\imprimirglossario{\gmap@umavez{glossario}{\imprimirglossario}%
+\newcommand\gmap@imprimirsimbolos[1]{\gmap@umavez{simbolos}{\imprimirsimbolos}%
+  {\gmap@lista{symbols}{\listadesimbolosname}{use}{gmap}{#1}}}
+\newcommand\gmap@imprimirglossario{\gmap@umavez{glossario}{\imprimirglossario}%
   {\gmap@lista{\glsdefaulttype}{\gmap@glossarioname}{standard}{gmaplista}{\gmap@cab@pos}}}
+% classico: as listas de simbolos e de siglas e o glossario saem sempre no
+% fim do documento (depois das referencias, apendices e anexos), nessa
+% ordem e no sumario; \imprimirsiglas, \imprimirsimbolos e
+% \imprimirglossario no texto sao ignorados
+\ifgmap@classico
+  \newcommand\imprimirsiglas{}
+  \newcommand\imprimirsimbolos{}
+  \newcommand\imprimirglossario{}
+\else
+  \newcommand\imprimirsiglas{\gmap@imprimirsiglas\gmap@cab@pre}
+  \newcommand\imprimirsimbolos{\gmap@imprimirsimbolos\gmap@cab@pre}
+  \let\imprimirglossario\gmap@imprimirglossario
+\fi
 \AddToHook{enddocument}{%
-  \ifcsdef{gmap@feito@glossario}{}{\imprimirglossario}%
+  \ifgmap@classico
+    \ifcsdef{gmap@feito@simbolos}{}{\gmap@imprimirsimbolos\gmap@cab@pos}%
+    \ifcsdef{gmap@feito@siglas}{}{\gmap@imprimirsiglas\gmap@cab@pos}%
+  \fi
+  \ifcsdef{gmap@feito@glossario}{}{\gmap@imprimirglossario}%
   \ifcsdef{gmap@feito@siglas}{}{\ifcsundef{@glsref@\glsxtrabbrvtype}{}{%
     \PackageWarningNoLine{gmap-ufrgs}{Acronyms used but no \string\imprimirsiglas}}}%
   \ifcsdef{gmap@feito@simbolos}{}{\ifcsundef{@glsref@symbols}{}{%
@@ -920,7 +1004,8 @@
 %   capa, folha de controle (so se houver \verificador, \aprovador ou a
 %   opcao confidencial), sumario e listas de siglas e de simbolos (se
 %   usadas), e o documento ja comeca na parte textual.
-% classico: sumario antes das listas; abnt: listas antes do sumario (ABNT).
+% classico: so o sumario (as listas vao para o fim do documento);
+% abnt: listas antes do sumario (ABNT).
 % Documentos antigos que ainda tem \imprimircapa, \pdfbookmark{...}{toc},
 % \tableofcontents* e \textual continuam compilando: esses comandos sao
 % ignorados (com aviso). Para montar os pre-textuais a mao (resumo,
@@ -946,7 +1031,7 @@
   \ifcsdef{gmap@p@nome}{\gmap@folhatrue}{}%
   \ifgmap@folha\imprimirfolhadecontrole\fi
   \ifgmap@classico
-    \gmap@sumario\imprimirsiglas\imprimirsimbolos
+    \gmap@sumario% listas: no fim do documento
   \else
     \imprimirsiglas\imprimirsimbolos\gmap@sumario
   \fi
