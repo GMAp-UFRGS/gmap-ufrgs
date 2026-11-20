@@ -140,6 +140,23 @@
 \RequirePackage{microtype}
 \RequirePackage{indentfirst}
 \RequirePackage{amsmath,amssymb}
+% Numeros e unidades (siunitx v3): virgula decimal e ponto (\cdot) na
+% potencia de 10 (1,5\cdot10^{3}); incerteza separada (1,5 \pm 0,1).
+% Na opcao english, ponto decimal. Equivale as chaves antigas (v1)
+% decimalsymbol=comma, expproduct=., seperr.
+\RequirePackage{siunitx}
+\sisetup{
+  exponent-product     = \cdot,
+  separate-uncertainty = true,
+}
+\ifgmap@english
+  \sisetup{output-decimal-marker = {.}}
+\else
+  \sisetup{output-decimal-marker = {,}}
+\fi
+% Polegada: \qty{5.5}{\inch} -> 5,5 in; \qty{9}{\pol} -> 9 pol
+\DeclareSIUnit\inch{in}
+\DeclareSIUnit\pol{pol}
 \RequirePackage{booktabs,tabularx,multirow,longtable}
 \RequirePackage{float}
 \RequirePackage{xspace}
@@ -329,6 +346,21 @@
 \setlength{\headdrop}{\gmap@headdrop}
 \setlength{\headsep}{\gmap@headsep}
 \checkandfixthelayout[fixed]
+
+% Notas de revisao: \todo{...} na margem, \todo[inline]{...} no texto,
+% \missingfigure{...} e \listoftodos (com a cor de cada nota).
+% A largura da nota na margem e definida depois do layout, para que o
+% \checkandfixthelayout nao a altere; cabe nas margens laterais de 2 cm.
+% Texto em \footnotesize: em corpo 12 uma palavra como "Revisar" ja nao
+% cabe em 1,5 cm.
+\RequirePackage[colorinlistoftodos,textsize=footnotesize]{todonotes}
+\setlength{\marginparwidth}{1.5cm}
+\ifgmap@english\else
+  \renewcommand*{\@todonotes@todolistname}{Lista de pend\^encias}
+  \renewcommand*{\@todonotes@MissingFigureText}{Figura}
+  \renewcommand*{\@todonotes@MissingFigureUp}{Figura}
+  \renewcommand*{\@todonotes@MissingFigureDown}{pendente}
+\fi
 
 % Alturas dos logos no cabecalho (cabem na altura do cabecalho, 48pt).
 % As letras "UFRGS" ocupam 39% da altura do logo da UFRGS e as maiusculas

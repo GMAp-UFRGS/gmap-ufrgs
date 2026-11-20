@@ -13,6 +13,8 @@
 #include:indentfirst
 #include:amsmath
 #include:amssymb
+#include:siunitx
+#include:todonotes
 #include:booktabs
 #include:tabularx
 #include:multirow
@@ -138,6 +140,10 @@ page=%<numero%>
 \end{listtraco}
 \begin{checklist}
 \end{checklist}
+
+# Unidades (siunitx)
+\inch#m
+\pol#m
 
 # Cores
 gmapazul#B
