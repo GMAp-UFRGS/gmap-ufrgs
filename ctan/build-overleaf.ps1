@@ -3,8 +3,7 @@
 # UFRGS e do GMAp e um main.tex de exemplo, tudo na raiz do projeto.
 #
 # Diferente do pacote do CTAN, este zip INCLUI os logos: e o caminho de
-# distribuicao para os usuarios do GMAp/UFRGS (os logos sao marcas, fora da
-# LPPL; ver README). O Overleaf usa o TeX Live, que so e atualizado uma vez
+# distribuicao para os usuarios do GMAp/UFRGS. O Overleaf usa o TeX Live, que so e atualizado uma vez
 # por ano; com a classe dentro do projeto o template funciona ja, e a versao
 # usada e sempre a deste zip.
 #
@@ -30,7 +29,6 @@ $Header = @"
 % A classe, os pacotes opcionais (gmap-math, gmap-codigo, gmap-figuras) e os logos da UFRGS
 % e do GMAp estao na raiz deste projeto. Manual e versao mais nova:
 % https://ctan.org/pkg/gmap-ufrgs e https://github.com/GMAp-UFRGS/gmap-ufrgs
-% Os logos sao marcas da UFRGS/GMAp: uso reservado a documentos da UFRGS/GMAp.
 
 "@
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false

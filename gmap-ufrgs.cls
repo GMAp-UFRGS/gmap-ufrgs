@@ -16,17 +16,11 @@
 %%
 %% The Current Maintainer of this work is Boris N. Rojo Tanzi.
 %%
-%% This work consists of the files gmap-ufrgs.cls, gmap-math.sty,
-%% gmap-codigo.sty, gmap-figuras.sty, doc/gmap-ufrgs-doc.tex,
-%% example/exemplo-minimo.tex and
-%% example/exemplo-classico.tex.
-%% The institutional logos gmap-logo-ufrgs.pdf and gmap-logo-gmap.pdf, used by
-%% default, are NOT part of this work and are NOT distributed with it: they
-%% are trademarks of UFRGS and GMAp, available in the Git repository
-%% https://github.com/GMAp-UFRGS/gmap-ufrgs (see README).
+%% This work consists of all the files of the gmap-ufrgs repository
+%% (https://github.com/GMAp-UFRGS/gmap-ufrgs), all under this same license.
 %%
 \NeedsTeXFormat{LaTeX2e}[2022/06/01]
-\ProvidesClass{gmap-ufrgs}[2026/11/18 v0.2 Relatorios tecnicos GMAp/UFRGS (ABNT ou perfil classico)]
+\ProvidesClass{gmap-ufrgs}[2026/11/20 v0.1 Relatorios tecnicos GMAp/UFRGS (ABNT ou perfil classico)]
 
 %---------------------------------------------------------------------
 % Pacotes minimos necessarios antes das opcoes
@@ -83,9 +77,11 @@
 %---------------------------------------------------------------------
 % Classe base: abntex2 (memoir). Portugues e' o idioma principal; com a
 % opcao english, o idioma ativo passa a ser o ingles no inicio do documento.
+% chapter=TITLE: titulos de capitulo (inclusive \chapter* e pre-textuais)
+% sempre em maiusculas.
 %---------------------------------------------------------------------
 \PassOptionsToPackage{english}{babel}
-\LoadClass[12pt,a4paper,oneside,openany,sumario=tradicional]{abntex2}
+\LoadClass[12pt,a4paper,oneside,openany,sumario=tradicional,chapter=TITLE]{abntex2}
 \ifgmap@english
   \AtBeginDocument{\selectlanguage{english}}
 \fi
@@ -113,6 +109,14 @@
 \AtBeginDocument{\captiondelim{:~}}
 \renewcommand*{\cftfigureaftersnum}{:\hfill}
 \renewcommand*{\cfttableaftersnum}{:\hfill}
+% legendas sem palavras hifenizadas ("carrega-mento"). Acrescentado ao estilo
+% de legenda do memoir no \begin{document}, para valer mesmo que o documento
+% troque o \captionstyle no preambulo (ex.: \captionstyle{\centering}).
+\newcommand\gmap@semhifen{\hyphenpenalty=\@M \exhyphenpenalty=\@M}
+\AtBeginDocument{%
+  \appto\@contcstyle{\gmap@semhifen}%
+  \appto\@contcshortstyle{\gmap@semhifen}%
+  \appto\@contsubcstyle{\gmap@semhifen}}
 
 %---------------------------------------------------------------------
 % Pacotes
@@ -144,10 +148,17 @@
 % potencia de 10 (1,5\cdot10^{3}); incerteza separada (1,5 \pm 0,1).
 % Na opcao english, ponto decimal. Equivale as chaves antigas (v1)
 % decimalsymbol=comma, expproduct=., seperr.
+% No texto, numeros e unidades saem na fonte do texto (sem serifa no
+% perfil classico e na opcao sans), seguindo negrito/italico ao redor;
+% dentro de $...$ continuam na fonte matematica.
 \RequirePackage{siunitx}
 \sisetup{
   exponent-product     = \cdot,
   separate-uncertainty = true,
+  mode                 = match,
+  reset-text-family    = false,
+  reset-text-series    = false,
+  reset-text-shape     = false,
 }
 \ifgmap@english
   \sisetup{output-decimal-marker = {.}}
@@ -272,8 +283,8 @@
 \newcommand\aoscuidados[1]{\gdef\gmap@aoscuidados{#1}}
 \newcommand\assunto[1]{\gdef\gmap@assunto{#1}}
 
-% Logos (nao vem no pacote do CTAN/TeX Live: estao no repositorio Git, em
-% fig/; podem ser trocados, ou desligados com \logoesquerda{} etc.)
+% Logos (estao no repositorio Git, em fig/; podem ser trocados, ou
+% desligados com \logoesquerda{} etc.)
 \newcommand\gmap@logoesq{gmap-logo-ufrgs.pdf}
 \newcommand\gmap@logodir{gmap-logo-gmap.pdf}
 \newcommand\gmap@logotopoesq{gmap-logo-ufrgs.pdf}
@@ -291,8 +302,7 @@
       \ifgmap@warned\else
         \global\gmap@warnedtrue
         \PackageWarningNoLine{gmap-ufrgs}{Logo not found (ignored): #1.\MessageBreak
-          The UFRGS/GMAp logos are not part of the\MessageBreak
-          CTAN/TeX Live package. Get them from\MessageBreak
+          Get the UFRGS/GMAp logos from\MessageBreak
           https://github.com/GMAp-UFRGS/gmap-ufrgs (fig/)\MessageBreak
           and put them next to your document or in fig/,\MessageBreak
           or disable them with \string\logoesquerda{} etc.\MessageBreak
@@ -324,6 +334,13 @@
 \renewcommand{\ABNTEXchapterfontsize}{\Large}
 \renewcommand{\ABNTEXsectionfontsize}{\large}
 \renewcommand{\ABNTEXsubsectionfontsize}{\normalsize}
+% Capitulos tambem em maiusculas no sumario, como no titulo (chapter=TITLE).
+% Mesmo recurso do sumario=abnt-6027-2012 do abntex2, mas so para os
+% capitulos e mantendo o resto do sumario tradicional; os marcadores do
+% PDF continuam com o texto original.
+\settocpreprocessor{chapter}{%
+  \let\gmap@tocorig\f@rtoc
+  \def\f@rtoc{\texorpdfstring{\MakeTextUppercase{\gmap@tocorig}}{\gmap@tocorig}}}
 
 %---------------------------------------------------------------------
 % Cabecalho e rodape (memoir)
@@ -979,7 +996,8 @@
 % pos-textual (no sumario, sem numero)
 \newcommand\gmap@cab@pre[1]{\pretextualchapter{#1}}
 \newcommand\gmap@cab@pos[1]{%
-  \chapter*{#1}\phantomsection\addcontentsline{toc}{chapter}{#1}}
+  \chapter*{#1}\phantomsection
+  \addcontentsline{toc}{chapter}{\texorpdfstring{\MakeTextUppercase{#1}}{#1}}}
 
 % #1 tipo, #2 titulo, #3 ordem, #4 estilo, #5 titulo (\gmap@cab@...)
 % (nada e' impresso se nenhum item do tipo foi usado no texto)

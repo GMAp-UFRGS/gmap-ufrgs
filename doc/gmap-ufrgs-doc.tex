@@ -21,7 +21,7 @@
 
 \title{A classe \pkg{gmap-ufrgs}\\\large Relatórios técnicos do GMAp/UFRGS conforme a ABNT}
 \author{Boris N. Rojo Tanzi}
-\date{v0.2 -- 2026/11/18\\[1ex]\small\url{https://github.com/GMAp-UFRGS/gmap-ufrgs}}
+\date{v0.1 -- 2026/11/20\\[1ex]\small\url{https://github.com/GMAp-UFRGS/gmap-ufrgs}}
 
 \begin{document}
 \maketitle
@@ -404,16 +404,13 @@ Ambientes \texttt{listalfa} (\textit{(a), (b)\ldots}), \texttt{listtraco}
 \cs{cinza} (célula) e \cs{linhacinza} (linha) com fundo cinza.
 
 \section{Logos e licença}\label{sec:logos}
-O código e a documentação são distribuídos sob a LPPL 1.3c ou posterior.
+Todos os arquivos são distribuídos sob a LPPL 1.3c ou posterior.
 Os logos \texttt{gmap-logo-ufrgs.pdf} (capa e cabeçalho) e
-\texttt{gmap-logo-gmap.pdf} são marcas da UFRGS e do GMAp. Eles \emph{não}
-são cobertos pela LPPL e \emph{não} fazem parte do pacote do CTAN/\TeX{} Live:
+\texttt{gmap-logo-gmap.pdf} não fazem parte do pacote do CTAN/\TeX{} Live:
 \begin{itemize}
   \item estão na pasta \texttt{fig/} do repositório
     (\url{https://github.com/GMAp-UFRGS/gmap-ufrgs}), são instalados pelo
     \texttt{install.ps1}/\texttt{install.sh} e já vêm no template do Overleaf;
-  \item seu uso é reservado a documentos da UFRGS/GMAp e deve seguir as
-    normas da marca (\url{https://www.ufrgs.br/site/marca-ufrgs/});
   \item fora da UFRGS, troque-os por outros com \cs{logoesquerda}\{arq\},
     \cs{logodireita}\{arq\} e \cs{logotopoesquerda}\{arq\}, ou desligue-os
     com o argumento vazio (\cs{logoesquerda}\{\}).
@@ -440,7 +437,7 @@ figuras) não são copiados para o documento final.
 
 \section{Histórico}
 \begin{description}
-  \item[v0.2 (2026/11/18)] Pré-textuais automáticos (capa, sumário, listas)
+  \item[v0.1 (2026/11/20)] Pré-textuais automáticos (capa, sumário, listas)
     no perfil \texttt{classico} e com a opção \texttt{pretextualautomatico};
     opções \texttt{pretextualmanual}, \texttt{semsiglas},
     \texttt{semsimbolos} e \texttt{semglossario}. Listas automáticas de siglas, de símbolos
@@ -450,9 +447,8 @@ figuras) não são copiados para o documento final.
     Os metadados dos PDFs incluídos (p.\,ex.\ o título dos logos) não vão
     mais para o documento. Cabeçalho e rodapé dentro das margens ABNT.
     Novo exemplo \texttt{exemplo-classico.tex}.
-  \item[v0.1 (2026/11/14)] Os logos da UFRGS e do GMAp saem do pacote do
-    CTAN (que fica inteiramente sob a LPPL e pode entrar no \TeX{} Live);
-    continuam no repositório Git e no template do Overleaf. A classe também
+    Os logos da UFRGS e do GMAp saem do pacote do
+    CTAN; continuam no repositório Git e no template do Overleaf. A classe também
     procura os logos em \texttt{fig/} e \texttt{figuras/}, e o aviso de logo
     ausente diz onde obtê-los.
   \item[v0.0 (2026/11/13)] Primeira versão pública (CTAN): classe,
@@ -504,11 +500,10 @@ The optional package \pkg{gmap-figuras} adds \cs{figuras}[keys]\{caption\}\{\{fi
 values) and \cs{definirmapa}/\cs{mapa} (key=value lookup tables).
 Installation: through \texttt{tlmgr} or MiKTeX,
 or by copying the \texttt{.cls}/\texttt{.sty} files next to your document.
-License: LPPL 1.3c or later (code and documentation). The UFRGS and GMAp
-logos used by default are trademarks, not covered by the LPPL and not part of
-the CTAN/TeX Live package: they are in the \texttt{fig/} folder of the Git
-repository and in the GMAp Overleaf template, and are reserved for UFRGS/GMAp
-documents. Others should replace them with \cs{logoesquerda},
+License: LPPL 1.3c or later (all files). The UFRGS and GMAp logos used by
+default are not part of the CTAN/TeX Live package: they are in the
+\texttt{fig/} folder of the Git repository and in the GMAp Overleaf template.
+Others should replace them with \cs{logoesquerda},
 \cs{logodireita} and \cs{logotopoesquerda}, or disable them with an empty
 argument (see Section~\ref{sec:logos}).
 Repository and bug tracker: \url{https://github.com/GMAp-UFRGS/gmap-ufrgs}.

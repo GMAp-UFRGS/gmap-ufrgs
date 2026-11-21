@@ -4,9 +4,8 @@
 #
 # Antes de empacotar, recompila o manual (doc/gmap-ufrgs-doc.pdf) e confere
 # que a versao do manual e do README coincide com a do \ProvidesClass.
-# Os logos (fig/gmap-logo-*) NAO vao para o CTAN: sao marcas da UFRGS e do
-# GMAp, fora da LPPL, e com eles o pacote nao entraria no TeX Live. Eles sao
-# distribuidos pelo repositorio Git e pelo template do Overleaf
+# Os logos (fig/gmap-logo-*) NAO vao para o CTAN: sao distribuidos pelo
+# repositorio Git e pelo template do Overleaf
 # (ctan/build-overleaf.ps1). O texto da LPPL tambem nao vai: a nota do README
 # basta (orientacao do CTAN).
 #

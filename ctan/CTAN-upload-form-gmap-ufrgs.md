@@ -26,9 +26,9 @@ gmap-ufrgs
 
 **Version**
 ```
-0.1 2026-11-14
+0.1 2026-11-20
 ```
-(coincide con `\ProvidesClass{gmap-ufrgs}[2026/11/14 v0.1 ...]`).
+(coincide con `\ProvidesClass{gmap-ufrgs}[2026/11/20 v0.1 ...]`).
 
 **Maintainer**
 ```
@@ -44,9 +44,10 @@ Boris N. Rojo Tanzi
 LaTeX class for technical reports of GMAp/UFRGS, compliant with ABNT standards
 ```
 
-**Description** (sin cambios respecto a la v0.0)
+**Description** (actualizada para la v0.1: pre-textuales automáticos, listas de
+siglas/símbolos/glosario y `gmap-figuras`)
 ```
-The gmap-ufrgs class extends abntex2 to typeset the technical reports, technical notes and letters of the Applied Mechanics Group (GMAp) at the Universidade Federal do Rio Grande do Sul (UFRGS), Brazil, following the Brazilian ABNT standards (NBR 10719, 14724, 6023, 10520, 6024, 6027, 6028). It provides the cover page, a control sheet with author/checker/approver signatures, an optional confidentiality notice, a "preliminary" mark and a one-line figure command. Portuguese is the default language and English is available as an option. Project data (team, process numbers, footer text) are set by commands in the document and never hard-coded in the class. Optional packages provide math shortcuts (gmap-math), code environments (gmap-codigo) and figures with subfigures split across pages (gmap-figuras).
+The gmap-ufrgs class extends abntex2 to typeset the technical reports, technical notes and letters of the Applied Mechanics Group (GMAp) at the Universidade Federal do Rio Grande do Sul (UFRGS), Brazil, following the Brazilian ABNT standards (NBR 10719, 14724, 6023, 10520, 6024, 6027, 6028). It provides the cover page, a control sheet with author/checker/approver signatures, an optional confidentiality notice, a "preliminary" mark, a one-line figure command, signature blocks, and automatic front matter with lists of acronyms, symbols and a glossary (glossaries-extra, no external tool). Portuguese is the default language and English is available as an option. Project data (team, process numbers, footer text) are set by commands in the document and never hard-coded in the class. Optional packages provide math shortcuts (gmap-math), code environments (gmap-codigo) and figures with subfigures split across pages (gmap-figuras).
 ```
 
 **Suggested CTAN directory**
@@ -54,7 +55,10 @@ The gmap-ufrgs class extends abntex2 to typeset the technical reports, technical
 macros/latex/contrib/gmap-ufrgs
 ```
 
-**Announcement** — dejar vacío (actualización menor; no hace falta anunciar).
+**Announcement** — opcional. La v0.1 trae funciones nuevas; si quieres anunciarla:
+```
+Version 0.1 removes the institutional logos from the package (now entirely under the LPPL 1.3c+) and adds automatic front matter (cover, control sheet, table of contents), lists of acronyms and symbols and a glossary based on glossaries-extra (no external tool), signature blocks that can be deferred to the end of the document, and the optional package gmap-figuras for subfigures split across pages and figure series.
+```
 
 **Administrative notes** (interno)
 ```
@@ -79,6 +83,7 @@ gmap-ufrgs/
   doc/gmap-ufrgs-doc.tex
   doc/gmap-ufrgs-doc.pdf
   example/exemplo-minimo.tex
+  example/exemplo-classico.tex
   example/latexmkrc
 ```
 
@@ -101,8 +106,7 @@ paquetes, logos y `main.tex`, todo en la raíz). En Overleaf:
 2. Para el grupo: **Share → Turn on link sharing** (solo lectura); cada uno
    abre el enlace y hace **Menu → Copy Project**.
 3. Opcional, galería pública: **Submit → Overleaf Gallery** (Overleaf revisa
-   el template antes de publicarlo). Los logos son marcas de la UFRGS/GMAp,
-   subidos por el propio grupo.
+   el template antes de publicarlo).
 
 Al publicar una versión nueva de la clase, regenerar el zip y actualizar el
 proyecto del template (subir los `.cls`/`.sty` nuevos encima).
