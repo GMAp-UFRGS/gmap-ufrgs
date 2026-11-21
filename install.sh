@@ -31,7 +31,7 @@ fi
 DEST_DIR="$TEXMFHOME/tex/latex/gmap-ufrgs"
 mkdir -p "$DEST_DIR"
 cp "$SCRIPT_DIR"/gmap-ufrgs.cls "$SCRIPT_DIR"/gmap-math.sty "$SCRIPT_DIR"/gmap-codigo.sty "$SCRIPT_DIR"/gmap-figuras.sty "$DEST_DIR"/
-cp "$SCRIPT_DIR"/fig/gmap-logo-* "$DEST_DIR"/ 2>/dev/null || true
+cp "$SCRIPT_DIR"/fig/logo-example-*.pdf "$DEST_DIR"/ 2>/dev/null || true
 
 echo "gmap-ufrgs copiado para: $DEST_DIR"
 

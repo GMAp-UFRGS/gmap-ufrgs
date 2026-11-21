@@ -17,7 +17,7 @@ $Stage = Join-Path ([System.IO.Path]::GetTempPath()) ("gmap-ufrgs-overleaf-" + [
 New-Item -ItemType Directory -Force -Path $Stage | Out-Null
 
 Copy-Item (Join-Path $Root "gmap-ufrgs.cls"), (Join-Path $Root "gmap-math.sty"), (Join-Path $Root "gmap-codigo.sty"), (Join-Path $Root "gmap-figuras.sty") -Destination $Stage
-$Logos = Get-ChildItem -Path (Join-Path $Root "fig") -Filter "gmap-logo-*"
+$Logos = Get-ChildItem -Path (Join-Path $Root "fig") -Filter "logo-example-*.pdf"
 if ($Logos.Count -ne 2) { Write-Error "Esperava 2 logos em fig/, encontrei $($Logos.Count)"; exit 1 }
 foreach ($l in $Logos) { Copy-Item $l.FullName -Destination $Stage }
 

@@ -9,7 +9,7 @@ $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Files = @("gmap-ufrgs.cls", "gmap-math.sty", "gmap-codigo.sty", "gmap-figuras.sty") |
     ForEach-Object { Join-Path $ScriptDir $_ }
-$Logos = Get-ChildItem -Path (Join-Path $ScriptDir "fig") -Filter "gmap-logo-*" -ErrorAction SilentlyContinue
+$Logos = Get-ChildItem -Path (Join-Path $ScriptDir "fig") -Filter "logo-example-*.pdf" -ErrorAction SilentlyContinue
 
 foreach ($f in $Files) {
     if (-not (Test-Path $f)) {

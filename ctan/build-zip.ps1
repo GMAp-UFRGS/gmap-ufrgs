@@ -4,7 +4,7 @@
 #
 # Antes de empacotar, recompila o manual (doc/gmap-ufrgs-doc.pdf) e confere
 # que a versao do manual e do README coincide com a do \ProvidesClass.
-# Os logos (fig/gmap-logo-*) NAO vao para o CTAN: sao distribuidos pelo
+# Os logos (fig/logo-example-*.pdf) NAO vao para o CTAN: sao distribuidos pelo
 # repositorio Git e pelo template do Overleaf
 # (ctan/build-overleaf.ps1). O texto da LPPL tambem nao vai: a nota do README
 # basta (orientacao do CTAN).
@@ -57,4 +57,4 @@ Remove-Item -Recurse -Force $Stage
 Write-Host "Criado: $Zip"
 & tar.exe -t -f $Zip
 # garantia: nenhum logo dentro do pacote do CTAN
-if ((& tar.exe -t -f $Zip) -match 'gmap-logo-') { Write-Error "Ha logos no zip do CTAN"; exit 1 }
+if ((& tar.exe -t -f $Zip) -match 'logo-example-') { Write-Error "Ha logos no zip do CTAN"; exit 1 }

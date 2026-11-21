@@ -33,7 +33,7 @@ Files
 - `example/latexmkrc`  lets `latexmk` find the class in the parent folder
 
 Only in the Git repository (not distributed on CTAN):
-- `fig/gmap-logo-ufrgs.pdf`, `fig/gmap-logo-gmap.pdf`  UFRGS and GMAp logos,
+- `fig/logo-example-01.pdf`, `fig/logo-example-02.pdf`  UFRGS and GMAp logos,
   used by default on the cover and header (see "Logos")
 - `install.ps1`, `install.sh`  install the class and the logos into TEXMFHOME
 - `texstudio/*.cwl`  TeXstudio completion files, installed by the scripts above
@@ -127,7 +127,7 @@ Quick start
 
 Logos
 -----
-`gmap-logo-ufrgs.pdf` and `gmap-logo-gmap.pdf` are not part of the
+`logo-example-01.pdf` and `logo-example-02.pdf` are not part of the
 CTAN/TeX Live package. They are available in the `fig/` folder of the Git
 repository (https://github.com/GMAp-UFRGS/gmap-ufrgs), are installed by
 `install.ps1`/`install.sh` and are included in the GMAp Overleaf template.

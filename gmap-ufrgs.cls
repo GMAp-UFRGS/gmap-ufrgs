@@ -285,9 +285,9 @@
 
 % Logos (estao no repositorio Git, em fig/; podem ser trocados, ou
 % desligados com \logoesquerda{} etc.)
-\newcommand\gmap@logoesq{gmap-logo-ufrgs.pdf}
-\newcommand\gmap@logodir{gmap-logo-gmap.pdf}
-\newcommand\gmap@logotopoesq{gmap-logo-ufrgs.pdf}
+\newcommand\gmap@logoesq{logo-example-01.pdf}
+\newcommand\gmap@logodir{logo-example-02.pdf}
+\newcommand\gmap@logotopoesq{logo-example-01.pdf}
 \newcommand\logoesquerda[1]{\gdef\gmap@logoesq{#1}}
 \newcommand\logodireita[1]{\gdef\gmap@logodir{#1}}
 \newcommand\logotopoesquerda[1]{\gdef\gmap@logotopoesq{#1}}
