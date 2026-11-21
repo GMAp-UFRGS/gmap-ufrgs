@@ -163,11 +163,20 @@
 \ifgmap@english
   \sisetup{output-decimal-marker = {.}}
 \else
-  \sisetup{output-decimal-marker = {,}}
+  % Listas e faixas em portugues: \qtylist{1;2;3}{\m} -> 1 m, 2 m e 3 m
+  \sisetup{
+    output-decimal-marker = {,},
+    list-final-separator  = {\text{ e }},
+    list-pair-separator   = {\text{ e }},
+    range-phrase          = {\text{ a }},
+  }
 \fi
-% Polegada: \qty{5.5}{\inch} -> 5,5 in; \qty{9}{\pol} -> 9 pol
+% Polegada: \qty{5.5}{\inch} -> 5,5 in; \qty{9}{\pol} -> 9" (aspas
+% coladas ao numero, sem espaco); \unit{\polegada} -> pol (cabecalho de
+% tabela, onde as aspas sozinhas confundem)
 \DeclareSIUnit\inch{in}
-\DeclareSIUnit\pol{pol}
+\DeclareSIUnit[quantity-product = {}]\pol{\mbox{\textquotedbl}}
+\DeclareSIUnit\polegada{pol}
 \RequirePackage{booktabs,tabularx,multirow,longtable}
 \RequirePackage{float}
 \RequirePackage{xspace}
@@ -247,6 +256,27 @@
     reproduced without authorization from GMAp or the requester. Copyright of
     the text is reserved to the parties and no part of this document may be
     used for public disclosure without prior authorization.}%
+}
+% Nomes usados por \reffig, \reftab, ... (singular e plural)
+\addto\captionsbrazil{%
+  \def\gmap@ref@fig{Figura}\def\gmap@ref@figs{Figuras}%
+  \def\gmap@ref@tab{Tabela}\def\gmap@ref@tabs{Tabelas}%
+  \def\gmap@ref@eq{Equa\c{c}\~ao}\def\gmap@ref@eqs{Equa\c{c}\~oes}%
+  \def\gmap@ref@cap{Cap\'itulo}\def\gmap@ref@caps{Cap\'itulos}%
+  \def\gmap@ref@sec{Se\c{c}\~ao}\def\gmap@ref@secs{Se\c{c}\~oes}%
+  \def\gmap@ref@ap{Ap\^endice}\def\gmap@ref@aps{Ap\^endices}%
+  \def\gmap@ref@anexo{Anexo}\def\gmap@ref@anexos{Anexos}%
+  \def\gmap@ref@e{e}%
+}
+\addto\captionsenglish{%
+  \def\gmap@ref@fig{Figure}\def\gmap@ref@figs{Figures}%
+  \def\gmap@ref@tab{Table}\def\gmap@ref@tabs{Tables}%
+  \def\gmap@ref@eq{Equation}\def\gmap@ref@eqs{Equations}%
+  \def\gmap@ref@cap{Chapter}\def\gmap@ref@caps{Chapters}%
+  \def\gmap@ref@sec{Section}\def\gmap@ref@secs{Sections}%
+  \def\gmap@ref@ap{Appendix}\def\gmap@ref@aps{Appendices}%
+  \def\gmap@ref@anexo{Annex}\def\gmap@ref@anexos{Annexes}%
+  \def\gmap@ref@e{and}%
 }
 
 %---------------------------------------------------------------------
@@ -441,6 +471,58 @@
 % Figuras e tabelas tem numeracao continua (abntex2); ancoras unicas para o hyperref
 \renewcommand{\theHfigure}{\arabic{figure}}
 \renewcommand{\theHtable}{\arabic{table}}
+
+%---------------------------------------------------------------------
+% Referencias cruzadas com o nome: \reffig{fig:viga} -> Figura 1 (o nome
+% e o numero formam um so link). Varios rotulos separados por virgula
+% saem no plural: \reffig{fig:a,fig:b,fig:c} -> Figuras 1, 2 e 3.
+% Com *, sem link. \refeq poe o numero entre parenteses: Equacao (1).
+% Nomes no idioma do documento (Figure 1 com a opcao english).
+%---------------------------------------------------------------------
+\ExplSyntaxOn
+\seq_new:N \l__gmap_ref_seq
+\tl_new:N \l__gmap_ref_tl
+% numero de um rotulo (so no \refeq entre parenteses): #1 = tipo, #2 = rotulo
+\cs_new:Npn \__gmap_ref_numero:nn #1#2
+  { \str_if_eq:nnTF {#1} { eq } { ( \ref* {#2} ) } { \ref* {#2} } }
+% nome e numero de um rotulo: Figura~1
+\cs_new:Npn \__gmap_ref_um:nn #1#2
+  { \use:c { gmap@ref@#1 } \nobreakspace \__gmap_ref_numero:nn {#1} {#2} }
+\cs_generate_variant:Nn \__gmap_ref_um:nn { nV }
+% link para o rotulo #1 com o texto #2
+\cs_new_protected:Npn \__gmap_ref_link:nn #1#2 { \hyperref [ #1 ] { #2 } }
+\cs_generate_variant:Nn \__gmap_ref_link:nn { Vn }
+% #1 = estrela, #2 = tipo (fig, tab, ...), #3 = rotulos
+\cs_new_protected:Npn \__gmap_ref:nnn #1#2#3
+  {
+    \seq_set_from_clist:Nn \l__gmap_ref_seq {#3}
+    \int_compare:nNnTF { \seq_count:N \l__gmap_ref_seq } = { 1 }
+      {
+        \seq_get_left:NN \l__gmap_ref_seq \l__gmap_ref_tl
+        \bool_if:NTF #1
+          { \__gmap_ref_um:nV {#2} \l__gmap_ref_tl }
+          { \__gmap_ref_link:Vn \l__gmap_ref_tl { \__gmap_ref_um:nV {#2} \l__gmap_ref_tl } }
+      }
+      {
+        \seq_set_map:NNn \l__gmap_ref_seq \l__gmap_ref_seq
+          {
+            \bool_if:NTF #1
+              { \__gmap_ref_numero:nn {#2} {##1} }
+              { \hyperref [ ##1 ] { \__gmap_ref_numero:nn {#2} {##1} } }
+          }
+        \use:c { gmap@ref@#2s } \nobreakspace
+        \seq_use:Nnnn \l__gmap_ref_seq
+          { \c_space_tl \gmap@ref@e \c_space_tl }
+          { , \c_space_tl }
+          { \c_space_tl \gmap@ref@e \c_space_tl }
+      }
+  }
+\clist_map_inline:nn { fig, tab, eq, cap, sec, ap, anexo }
+  {
+    \exp_args:Nc \NewDocumentCommand { ref #1 } { s m }
+      { \__gmap_ref:nnn {##1} {#1} {##2} }
+  }
+\ExplSyntaxOff
 
 %---------------------------------------------------------------------
 % Aviso de confidencialidade

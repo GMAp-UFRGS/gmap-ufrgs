@@ -131,6 +131,22 @@ clip#true,false
 page=%<numero%>
 #endkeyvals
 
+# Referencias cruzadas
+\reffig{label}#r
+\reffig*{label}#r
+\reftab{label}#r
+\reftab*{label}#r
+\refeq{label}#r
+\refeq*{label}#r
+\refcap{label}#r
+\refcap*{label}#r
+\refsec{label}#r
+\refsec*{label}#r
+\refap{label}#r
+\refap*{label}#r
+\refanexo{label}#r
+\refanexo*{label}#r
+
 # Tabelas e listas
 \cinza
 \linhacinza
@@ -144,6 +160,7 @@ page=%<numero%>
 # Unidades (siunitx)
 \inch#m
 \pol#m
+\polegada#m
 
 # Cores
 gmapazul#B

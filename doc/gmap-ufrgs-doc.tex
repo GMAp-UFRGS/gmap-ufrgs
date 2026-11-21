@@ -308,6 +308,27 @@ Uma linha substitui o ambiente inteiro:
     80\,\% da largura do texto; \cs{tamanhofiguras}\{\} volta à escala 1.
 \end{itemize}
 
+\subsection{Referências cruzadas}
+Em vez de \texttt{Figura\textasciitilde\textbackslash ref\{fig:viga\}}, use os
+comandos abaixo: escrevem o nome e o número (o conjunto é um só link) e não
+deixam o número separado do nome numa quebra de linha.
+\begin{lstlisting}
+\reffig{fig:viga}             % Figura 1
+\reftab{tab:dados}            % Tabela 2
+\refeq{eq:equilibrio}         % Equação (3)
+\refcap{cap:intro}            % Capítulo 1
+\refsec{sec:metodo}           % Seção 2.1
+\refap{ap:calculos}           % Apêndice A
+\refanexo{an:normas}          % Anexo A
+\reffig{fig:a,fig:b,fig:c}    % Figuras 1, 2 e 3
+\refeq{eq:a,eq:b}             % Equações (1) e (2)
+\reffig*{fig:viga}            % Figura 1, sem link
+\end{lstlisting}
+Vários rótulos separados por vírgula saem no plural. Com a opção
+\texttt{english} os nomes saem em inglês (\emph{Figure 1}, \emph{Figures 1 and
+2}). Subfiguras do \pkg{gmap-figuras} também: \cs{reffig}\{fig:viga-2\} dá
+\emph{Figura 3(b)}.
+
 \section{Referências}
 Use \cs{cite} (autor-data entre parênteses) e \cs{citeonline} (autor no
 texto), com \cs{bibliography}\allowbreak\{arquivo\}\allowbreak{} (o estilo \texttt{abntex2-alf} é

@@ -65,6 +65,15 @@ warning only if it does not fit), with the automatic label `fig:<file>`;
 `\figura[0.6]{file}{caption}`, makes the image 60% of the text width;
 `\tamanhofiguras{0.8}` sets that default for every figure without its own size.
 
+Cross-references
+----------------
+`\reffig`, `\reftab`, `\refeq`, `\refcap`, `\refsec`, `\refap` (appendix) and
+`\refanexo` print the name with the number as one link:
+`\reffig{fig:viga}` gives "Figura 1" and `\refeq{eq:a}` gives "Equação (1)".
+A comma-separated list switches to the plural, `\reffig{fig:a,fig:b,fig:c}`
+gives "Figuras 1, 2 e 3". The starred form has no link. Names follow the
+document language ("Figure 1" with the `english` option).
+
 Signatures
 ----------
 `\blocoassinatura[keys]{Name \\ Role \\ Group \\ Institution}` prints a
