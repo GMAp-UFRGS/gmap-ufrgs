@@ -13,6 +13,8 @@
 #include:indentfirst
 #include:amsmath
 #include:amssymb
+#include:siunitx
+#include:todonotes
 #include:booktabs
 #include:tabularx
 #include:multirow
@@ -21,6 +23,8 @@
 #include:xspace
 #include:abntex2cite
 #include:enumitem
+#include:substr
+#include:glossaries-extra
 
 #keyvals:\documentclass/gmap-ufrgs
 relatorio
@@ -34,6 +38,11 @@ brazil
 confidencial
 preliminar
 sans
+pretextualautomatico
+pretextualmanual
+semsiglas
+semsimbolos
+semglossario
 #endkeyvals
 
 # Metadados
@@ -86,6 +95,19 @@ espaco=##L
 \confidencial
 \fecharcarta{nome}{cargo}
 
+# Siglas, simbolos e glossario (glossaries-extra, sem ferramenta externa)
+\abreviatura{rotulo}{curta}{longa}
+\abreviatura[chaves]{rotulo}{curta}{longa}
+\sigla{rotulo}{SIGLA}{expansao}
+\sigla[chaves]{rotulo}{SIGLA}{expansao}
+\simbolo{rotulo}{simbolo}{descricao}
+\simbolo[chaves]{rotulo}{simbolo}{descricao}
+\termo{rotulo}{termo}{definicao}
+\termo[chaves]{rotulo}{termo}{definicao}
+\imprimirsiglas
+\imprimirsimbolos
+\imprimirglossario
+
 # Figuras
 \figura{imagefile}{legenda}
 \figura[chaves%keyvals]{imagefile}{legenda}
@@ -109,6 +131,22 @@ clip#true,false
 page=%<numero%>
 #endkeyvals
 
+# Referencias cruzadas
+\reffig{label}#r
+\reffig*{label}#r
+\reftab{label}#r
+\reftab*{label}#r
+\refeq{label}#r
+\refeq*{label}#r
+\refcap{label}#r
+\refcap*{label}#r
+\refsec{label}#r
+\refsec*{label}#r
+\refap{label}#r
+\refap*{label}#r
+\refanexo{label}#r
+\refanexo*{label}#r
+
 # Tabelas e listas
 \cinza
 \linhacinza
@@ -118,6 +156,11 @@ page=%<numero%>
 \end{listtraco}
 \begin{checklist}
 \end{checklist}
+
+# Unidades (siunitx)
+\inch#m
+\pol#m
+\polegada#m
 
 # Cores
 gmapazul#B

@@ -1,0 +1,260 @@
+%%
+%% bsn300-figuras.sty -- figuras padronizadas dos relatorios BSN300.
+%% Copyright (C) 2026 Boris N. Rojo Tanzi and GMAp/UFRGS
+%% LaTeX Project Public License, version 1.3c or later.
+%% NAO faz parte do bundle gmap-ufrgs: copie para a pasta do relatorio e
+%% carregue no preambulo com \usepackage{bsn300-figuras}.
+%%
+%%   \Abaco{<modelo>}{<capacete>}          blocos 1 + 2
+%%   \Abaco[2,1]{<modelo>}{<capacete>}     blocos 2 + 1
+%%   \AbacoB{<modelo>}{<capacete>}         = \Abaco[2,1]{...}{...}
+%%   \RazaoCarga{<modelo>}{<capacete>}
+%% No texto (mesma tabela de alturas):
+%%   \bsn{<modelo>}                        so o nome: BSN300-30
+%%   \ModeloBSN{<modelo>}                  modelo padrao para os comandos abaixo
+%%   \Capacete[<modelo>]{<capacete>}       \gls{hc2} (636,25 mm); * = sem \gls
+%%   \AlturaCapacete[<modelo>]{<capacete>} 636,25 mm
+%%   \EspessuraIntegra[<modelo>]           19,1 mm
+%%   \Espessuras[<modelo>]{<lista>}        19,1 mm, 13 mm e 4 mm ({lista} opcional)
+%% <capacete> = HC1, HC2 ou HC3 (ou so 1, 2, 3). A altura sai da tabela abaixo.
+%%
+%% Exemplos:
+%%   \Abaco{30}{HC2}       -> figuras/abcs/BSN300_30 HC636 T=0 e=4.0.pdf, ...
+%%                            "capacete HC2 (636,25 mm)"
+%%   \RazaoCarga{30}{HC1}  -> figuras/plots_UPcap/razao_cargas_BSN300-30_HC1.pdf
+%%
+%% Rotulos:
+%%   \Abaco{30}{HC2}       figura fig:abaco_30_HC2,
+%%                         subfiguras fig:abaco_30_HC2-4.0, -9.0, -13.0
+%%   \RazaoCarga{30}{HC1}  fig:razao_cargas_BSN300-30_HC1
+%%
+\NeedsTeXFormat{LaTeX2e}[2022/06/01]
+\ProvidesPackage{bsn300-figuras}[2026/11/20 v0.1 Abacos e razao de cargas BSN300]
+\RequirePackage{gmap-figuras}
+
+%---------------------------------------------------------------------
+% Configuracao (mude aqui, nao nas macros)
+%---------------------------------------------------------------------
+\newcommand\pastaabacos{figuras/abcs}
+\newcommand\pastarazaocargas{figuras/plots_UPcap}
+% espessuras dos abacos, como aparecem no nome do arquivo (e=4.0)
+\newcommand\espessurasabaco{4.0, 9.0, 13.0}
+
+% Altura real [mm] do capacete HCn para cada <modelo>/<n> (sai na legenda:
+% 636,25 mm). Combinacao fora da tabela = erro.
+%   Diametro   HC1   HC2      HC3
+%   18         360   680      650
+%   22         360   680      640
+%   30         360   636.25   576.25
+\definirmapa{alturacapacete}{
+  18/1=360, 18/2=680,    18/3=650,
+  22/1=360, 22/2=680,    22/3=640,
+  30/1=360, 30/2=636.25, 30/3=576.25}
+% Altura como aparece no nome dos arquivos dos abacos (HC636, sem decimais)
+\definirmapa{alturaarquivo}{
+  18/1=360, 18/2=680, 18/3=650,
+  22/1=360, 22/2=680, 22/3=640,
+  30/1=360, 30/2=636, 30/3=576}
+
+\ExplSyntaxOn
+% numero com 2 decimais e virgula no texto:
+%   \bsn@dec{360} -> 360,00   \bsn@dec{636.25} -> 636,25   \bsn@dec{4.0} -> 4,00
+\NewDocumentCommand \bsn@dec { m }
+  {
+    \int_set:Nn \l_tmpa_int { \fp_eval:n { round ( (#1) * 100 ) } }
+    \int_eval:n { \int_div_truncate:nn { \l_tmpa_int } { 100 } } ,
+    \int_compare:nNnT { \int_mod:nn { \l_tmpa_int } { 100 } } < { 10 } { 0 }
+    \int_eval:n { \int_mod:nn { \l_tmpa_int } { 100 } }
+  }
+
+% altura do capacete: \bsn@altura{<modelo>}{<n>} (expansivel)
+\cs_new:Npn \bsn@altura #1#2 { \mapa { alturacapacete } { #1 / #2 } }
+% altura no nome do arquivo: \bsn@alturaarq{<modelo>}{<n>} (expansivel)
+\cs_new:Npn \bsn@alturaarq #1#2 { \mapa { alturaarquivo } { #1 / #2 } }
+
+% "HC2", "hc2" ou "2" -> 2
+\tl_new:N \l__bsn_hc_tl
+\cs_new_protected:Npn \__bsn_hc:n #1
+  {
+    \tl_set:Ne \l__bsn_hc_tl { \tl_trim_spaces:n {#1} }
+    \tl_remove_once:Nn \l__bsn_hc_tl { HC }
+    \tl_remove_once:Nn \l__bsn_hc_tl { hc }
+  }
+
+%---------------------------------------------------------------------
+% Abacos: uma subfigura por espessura, cortada em paginas
+% #1 = subfiguras por pagina (padrao 1,2), #2 = modelo, #3 = capacete
+%---------------------------------------------------------------------
+\cs_new_protected:Npn \__bsn_abaco:nnn #1#2#3
+  {
+    \serieFiguras*[rotulo=fig:abaco_#2_HC#3, porpagina={#1}, decimal=., escala=1]
+      { \pastaabacos/BSN300_#2~HC\bsn@alturaarq{#2}{#3}~T=0~e=##1.pdf }
+      { \espessurasabaco }
+      { Espessura~de~\bsn@dec{##1} \nobreakspace mm. }
+      {
+        \'Abacos~para~BSN300-#2,~capacete~HC#3 \nobreakspace
+        (\bsn@dec{\bsn@altura{#2}{#3}} \nobreakspace mm)~e~
+        diferentes~espessuras.
+      }
+  }
+\cs_generate_variant:Nn \__bsn_abaco:nnn { nnV }
+
+\NewDocumentCommand \Abaco { O{1,2} m m }
+  {
+    \__bsn_hc:n {#3}
+    \__bsn_abaco:nnV {#1} {#2} \l__bsn_hc_tl
+  }
+
+\NewDocumentCommand \AbacoB { m m } { \Abaco[2,1]{#1}{#2} }
+
+%---------------------------------------------------------------------
+% Razao de cargas
+% #1 = modelo, #2 = capacete
+%---------------------------------------------------------------------
+\cs_new_protected:Npn \__bsn_razao:nn #1#2
+  {
+    \figura*[escala=1, rotulo=fig:razao_cargas_BSN300-#1_HC#2]
+      { \pastarazaocargas/razao_cargas_BSN300-#1_HC#2.pdf }
+      {
+        Gr\'afico~da~raz\~ao~de~cargas~considerando~a~varia\c{c}\~ao~da~
+        posi\c{c}\~ao~do~defeito~para~a~BSN300-#1,~altura~de~capacete~
+        HC#2 \nobreakspace (\bsn@dec{\bsn@altura{#1}{#2}} \nobreakspace mm),~
+        considerando~as~tr\^es~
+        espessuras~e~tr\^es~rampas~avaliadas.
+      }
+  }
+\cs_generate_variant:Nn \__bsn_razao:nn { nV }
+
+\NewDocumentCommand \RazaoCarga { m m }
+  {
+    \__bsn_hc:n {#2}
+    \__bsn_razao:nV {#1} \l__bsn_hc_tl
+  }
+
+%---------------------------------------------------------------------
+% Capacete no texto corrido (altura sai da mesma tabela das legendas)
+%   \ModeloBSN{30}                 modelo padrao a partir daqui
+%   \Capacete{HC2}                 -> \gls{hc2} (636,25 mm)
+%   \Capacete[22]{HC2}             -> \gls{hc2} (680,00 mm)   (outro modelo)
+%   \Capacete*{HC2}                -> HC2 (636,25 mm)         (sem \gls)
+%   \AlturaCapacete{HC2}           -> 636,25 mm
+%---------------------------------------------------------------------
+\msg_new:nnn { bsn300-figuras } { sem-modelo }
+  { Modelo~nao~definido:~use~\token_to_str:N \ModeloBSN {<modelo>}~ou~
+    \token_to_str:N #1 [<modelo>]{<capacete>}. }
+
+\tl_new:N \l__bsn_modelo_tl   % definido por \ModeloBSN
+\tl_new:N \l__bsn_mod_tl      % modelo efetivo do comando atual
+\NewDocumentCommand \ModeloBSN { m }
+  { \tl_set:Ne \l__bsn_modelo_tl { \tl_trim_spaces:n {#1} } }
+
+% #1 = modelo opcional (-NoValue- = usa \ModeloBSN), #2 = comando (p/ erro)
+\cs_new_protected:Npn \__bsn_mod:nN #1#2
+  {
+    \IfNoValueTF {#1}
+      { \tl_set_eq:NN \l__bsn_mod_tl \l__bsn_modelo_tl }
+      { \tl_set:Ne \l__bsn_mod_tl { \tl_trim_spaces:n {#1} } }
+    \tl_if_empty:NT \l__bsn_mod_tl
+      { \msg_error:nnn { bsn300-figuras } { sem-modelo } {#2} }
+  }
+
+% #1 = modelo, #2 = n
+\cs_new_protected:Npn \__bsn_altura_texto:nn #1#2
+  { \bsn@dec { \bsn@altura {#1} {#2} } \nobreakspace mm }
+\cs_generate_variant:Nn \__bsn_altura_texto:nn { VV }
+
+% #1 = com \gls?, #2 = n
+\cs_new_protected:Npn \__bsn_capacete:nn #1#2
+  {
+    \bool_lazy_and:nnTF {#1} { \cs_if_exist_p:N \gls }
+      { \gls { hc#2 } }
+      { HC#2 }
+    \nobreakspace
+    ( \__bsn_altura_texto:VV \l__bsn_mod_tl \l__bsn_hc_tl )
+  }
+
+\NewDocumentCommand \AlturaCapacete { o m }
+  {
+    \__bsn_mod:nN {#1} \AlturaCapacete
+    \__bsn_hc:n {#2}
+    \tl_if_empty:NF \l__bsn_mod_tl
+      { \__bsn_altura_texto:VV \l__bsn_mod_tl \l__bsn_hc_tl }
+  }
+
+\NewDocumentCommand \Capacete { s o m }
+  {
+    \__bsn_mod:nN {#2} \Capacete
+    \__bsn_hc:n {#3}
+    \tl_if_empty:NF \l__bsn_mod_tl
+      {
+        \IfBooleanTF {#1}
+          { \exp_args:NnV \__bsn_capacete:nn { \c_false_bool } \l__bsn_hc_tl }
+          { \exp_args:NnV \__bsn_capacete:nn { \c_true_bool } \l__bsn_hc_tl }
+      }
+  }
+
+%---------------------------------------------------------------------
+% Espessuras de parede no texto
+%   \EspessuraIntegra              -> 19,1 mm   (parede sem defeito)
+%   \Espessuras                    -> 19,1 mm, 13 mm e 4 mm
+%   \Espessuras[22]                -> 19 mm, 13 mm e 4 mm     (outro modelo)
+%   \Espessuras{integra, 9, 4}     -> 19,1 mm, 9 mm e 4 mm    (outra lista)
+% Na lista, "integra" vira a espessura do modelo; o resto vai como esta.
+%---------------------------------------------------------------------
+\ExplSyntaxOff
+% Espessura integra [mm] por <modelo> (dados FailureData_BSN300_*.csv)
+\definirmapa{espessuraintegra}{18=19.2, 22=19.0, 30=19.1}
+% Espessuras citadas no texto por padrao (decrescente)
+\newcommand\espessurastexto{integra, 13, 4}
+\ExplSyntaxOn
+
+\tl_new:N \l__bsn_esp_tl
+\clist_new:N \l__bsn_esp_clist
+
+% #1 = lista de espessuras ("integra" = do modelo em \l__bsn_mod_tl)
+\cs_new_protected:Npn \__bsn_espessuras:n #1
+  {
+    \tl_clear:N \l__bsn_esp_tl
+    \clist_set:Ne \l__bsn_esp_clist {#1}
+    \clist_map_inline:Nn \l__bsn_esp_clist
+      {
+        \tl_if_empty:NF \l__bsn_esp_tl { \tl_put_right:Nn \l__bsn_esp_tl { ; } }
+        \str_if_eq:nnTF {##1} { integra }
+          {
+            \tl_put_right:Ne \l__bsn_esp_tl
+              { \exp_args:NnV \mapa { espessuraintegra } \l__bsn_mod_tl }
+          }
+          { \tl_put_right:Nn \l__bsn_esp_tl {##1} }
+      }
+    \group_begin:
+      \sisetup { drop-zero-decimal }
+      \exp_args:NV \qtylist \l__bsn_esp_tl { \milli\metre }
+    \group_end:
+  }
+
+\NewDocumentCommand \EspessuraIntegra { o }
+  {
+    \__bsn_mod:nN {#1} \EspessuraIntegra
+    \tl_if_empty:NF \l__bsn_mod_tl
+      { \__bsn_espessuras:n { integra } }
+  }
+
+\NewDocumentCommand \Espessuras { o +g }
+  {
+    \__bsn_mod:nN {#1} \Espessuras
+    \tl_if_empty:NF \l__bsn_mod_tl
+      {
+        \IfNoValueTF {#2}
+          { \__bsn_espessuras:n { \espessurastexto } }
+          { \__bsn_espessuras:n {#2} }
+      }
+  }
+\ExplSyntaxOff
+
+%---------------------------------------------------------------------
+% Nome do modelo, so o texto: \bsn{30} -> BSN300-30
+%---------------------------------------------------------------------
+\NewDocumentCommand \bsn { m }
+  { \mbox{BSN300-#1} }
+
+\endinput

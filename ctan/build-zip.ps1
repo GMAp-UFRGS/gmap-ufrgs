@@ -4,9 +4,10 @@
 #
 # Antes de empacotar, recompila o manual (doc/gmap-ufrgs-doc.pdf) e confere
 # que a versao do manual e do README coincide com a do \ProvidesClass.
-# Os logos (fig/gmap-logo-*) vao na raiz do pacote, junto da classe, para que
-# a instalacao TDS os coloque em tex/latex/gmap-ufrgs/. Nao sao cobertos pela
-# LPPL (marcas da UFRGS e do GMAp; ver README).
+# Os logos (fig/logo-example-*.pdf) NAO vao para o CTAN: sao distribuidos pelo
+# repositorio Git e pelo template do Overleaf
+# (ctan/build-overleaf.ps1). O texto da LPPL tambem nao vai: a nota do README
+# basta (orientacao do CTAN).
 #
 # Uso (a partir da pasta gmap-ufrgs):  .\ctan\build-zip.ps1
 
@@ -42,10 +43,9 @@ $Stage = Join-Path ([System.IO.Path]::GetTempPath()) ("gmap-ufrgs-ctan-" + [guid
 $Pkg = Join-Path $Stage "gmap-ufrgs"
 New-Item -ItemType Directory -Force -Path $Pkg, (Join-Path $Pkg "doc"), (Join-Path $Pkg "example") | Out-Null
 
-Copy-Item (Join-Path $Root "gmap-ufrgs.cls"), (Join-Path $Root "gmap-math.sty"), (Join-Path $Root "gmap-codigo.sty"), (Join-Path $Root "LICENSE"), (Join-Path $Root "README.md") -Destination $Pkg
-Copy-Item (Join-Path $Root "fig\gmap-logo-*") -Destination $Pkg
+Copy-Item (Join-Path $Root "gmap-ufrgs.cls"), (Join-Path $Root "gmap-math.sty"), (Join-Path $Root "gmap-codigo.sty"), (Join-Path $Root "gmap-figuras.sty"), (Join-Path $Root "README.md") -Destination $Pkg
 Copy-Item (Join-Path $Root "doc\gmap-ufrgs-doc.tex"), (Join-Path $Root "doc\gmap-ufrgs-doc.pdf") -Destination (Join-Path $Pkg "doc")
-Copy-Item (Join-Path $Root "example\exemplo-minimo.tex"), (Join-Path $Root "example\latexmkrc") -Destination (Join-Path $Pkg "example")
+Copy-Item (Join-Path $Root "example\exemplo-minimo.tex"), (Join-Path $Root "example\exemplo-classico.tex"), (Join-Path $Root "example\latexmkrc") -Destination (Join-Path $Pkg "example")
 
 $Zip = Join-Path $Root "ctan\gmap-ufrgs.zip"
 if (Test-Path $Zip) { Remove-Item $Zip }
@@ -56,3 +56,5 @@ if ($LASTEXITCODE -ne 0) { Write-Error "tar.exe falhou"; exit 1 }
 Remove-Item -Recurse -Force $Stage
 Write-Host "Criado: $Zip"
 & tar.exe -t -f $Zip
+# garantia: nenhum logo dentro do pacote do CTAN
+if ((& tar.exe -t -f $Zip) -match 'logo-example-') { Write-Error "Ha logos no zip do CTAN"; exit 1 }

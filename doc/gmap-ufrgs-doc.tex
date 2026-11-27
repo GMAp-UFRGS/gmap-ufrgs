@@ -21,7 +21,7 @@
 
 \title{A classe \pkg{gmap-ufrgs}\\\large Relatórios técnicos do GMAp/UFRGS conforme a ABNT}
 \author{Boris N. Rojo Tanzi}
-\date{v0.0 -- 2026/11/13\\[1ex]\small\url{https://github.com/GMAp-UFRGS/gmap-ufrgs}}
+\date{v0.1 -- 2026/11/20\\[1ex]\small\url{https://github.com/GMAp-UFRGS/gmap-ufrgs}}
 
 \begin{document}
 \maketitle
@@ -42,13 +42,18 @@ Section~\ref{sec:en}.}
 \begin{itemize}
   \item \textbf{Distribuição \TeX}: instale o pacote \pkg{gmap-ufrgs} pelo
     \texttt{tlmgr} (\TeX{} Live) ou pelo console do MiK\TeX.
-  \item \textbf{Manual}: copie \texttt{gmap-ufrgs.cls}, os \texttt{.sty} e os
-    logos (\texttt{gmap-logo-*}) para a pasta do seu arquivo mestre, ou para
+  \item \textbf{Manual}: copie \texttt{gmap-ufrgs.cls} e os \texttt{.sty}
+    para a pasta do seu arquivo mestre, ou para
     \texttt{TEXMFHOME/tex/latex/gmap-ufrgs/} (e atualize o banco de nomes).
   \item \textbf{Repositório Git}: execute \texttt{install.ps1} (Windows) ou
-    \texttt{install.sh} (Linux/macOS), que também instalam o autocompletar do
-    TeXstudio.
+    \texttt{install.sh} (Linux/macOS), que instalam a classe junto com os
+    logos e também o autocompletar do TeXstudio.
+  \item \textbf{Overleaf}: comece pelo template do GMAp (classe, pacotes e
+    logos já no projeto) ou envie os \texttt{.cls}, \texttt{.sty} e os logos
+    para a raiz do projeto.
 \end{itemize}
+Os logos da UFRGS e do GMAp \emph{não} vêm no pacote do CTAN/\TeX{} Live
+(Seção~\ref{sec:logos}).
 Requisitos: \LaTeX{} 2022-06-01 ou posterior (\TeX{} Live 2022 ou MiK\TeX{}
 atualizado), com \pkg{abntex2}. Motor recomendado: pdf\LaTeX{} + Bib\TeX{};
 Lua\LaTeX{} e Xe\LaTeX{} também funcionam.
@@ -83,8 +88,13 @@ english & textos fixos em inglês (idioma ativo no início do documento).\\
 confidencial & imprime o aviso de confidencialidade na folha de controle.\\
 preliminar & marca \textit{PRELIMINAR} no cabeçalho e no rodapé.\\
 sans & fonte sem serifa como padrão.\\
-abnt & (padrão) perfil ABNT: margens 3/2\,cm, espaço 1,5, citação autor-data, legenda acima da figura.\\
-classico & perfil do formato anterior do GMAp: Latin Modern Sans no documento inteiro, margens laterais de 2\,cm, espaço simples, citação numérica \texttt{[1]}, legenda abaixo da figura (\textbf{Figura 1:} em negrito), capa com revisão, data \texttt{dd/mm/aaaa} e rodapé com o nome do projeto. Não use \texttt{resumo}/\texttt{abstract}. (O nome antigo, \texttt{petrobras}, continua aceito.)\\
+abnt & (padrão) perfil ABNT: margens 3/2\,cm, espaço 1,5, citação autor-data, legenda acima da figura (\texttt{Figura 1: Texto}).\\
+classico & perfil do formato anterior do GMAp: Latin Modern Sans no documento inteiro, margens laterais de 2\,cm, espaço simples, citação numérica \texttt{[1]}, legenda abaixo da figura (\textbf{Figura 1:} em negrito), capa com revisão, data \texttt{dd/mm/aaaa}, rodapé com o nome do projeto e elementos pré-textuais automáticos (Seção~\ref{sec:auto}). Não use \texttt{resumo}/\texttt{abstract}. (O nome antigo, \texttt{petrobras}, continua aceito.)\\
+pretextualautomatico & capa, sumário e listas saem sozinhos no \cs{begin\{document\}} (padrão no perfil \texttt{classico}; Seção~\ref{sec:auto}).\\
+pretextualmanual & desliga os pré-textuais automáticos do perfil \texttt{classico}.\\
+semsiglas & sem lista de abreviaturas e siglas (nem automática nem com \cs{imprimirsiglas}); \cs{gls} continua funcionando, sem link.\\
+semsimbolos & sem lista de símbolos.\\
+semglossario & sem glossário.\\
 \bottomrule
 \end{longtable}
 
@@ -106,7 +116,7 @@ Vêm do \pkg{abntex2}: \cs{titulo}, \cs{autor}, \cs{data}, \cs{local},
 \textbackslash codigosprojeto\{texto\} & processo, contrato etc., abaixo da equipe na capa.\\
 \textbackslash gerenciatecnica\{texto\} & gerência técnica solicitante, abaixo dos códigos na capa (perfil \texttt{classico}).\\
 \textbackslash rodapeprojeto\{texto\} & texto do rodapé de todas as páginas (no perfil \texttt{classico}, se omitido, usa o \cs{projeto} em maiúsculas).\\
-\textbackslash gmapendereco\{texto\} & endereço na capa (padrão: sede do GMAp).\\
+\textbackslash gmapendereco\{texto\} & endereço no rodapé da capa (padrão: sede do GMAp).\\
 \textbackslash destinatario\{texto\}, \textbackslash aoscuidados\{texto\}, \textbackslash assunto\{texto\} & dados da carta.\\
 \textbackslash logoesquerda\{arq\}, \textbackslash logodireita\{arq\}, \textbackslash logotopoesquerda\{arq\} & trocam os logos da capa e do cabeçalho.\\
 \bottomrule
@@ -119,6 +129,95 @@ confidencialidade se a opção estiver ativa), \cs{confidencial} (aviso avulso),
 \cs{fecharcarta}\{nome\}\{cargo\} (fecho da carta). Os demais elementos
 (\texttt{resumo}, \cs{listoffigures*}, \cs{tableofcontents*}, \texttt{apendicesenv},
 \texttt{anexosenv}, \cs{fonte}, \cs{nota}) são os do \pkg{abntex2}.
+
+\section{Pré-textuais automáticos}\label{sec:auto}
+No perfil \texttt{classico} (ou com a opção \texttt{pretextualautomatico}
+no perfil ABNT) o documento começa direto no texto:
+\begin{lstlisting}
+\documentclass[classico]{gmap-ufrgs}
+... dados do documento, \sigla, \simbolo, \termo ...
+\begin{document}
+\chapter{Introdução}
+\end{lstlisting}
+No \cs{begin\{document\}} saem, nesta ordem: capa; folha de controle (só se
+houver \cs{verificador}, \cs{aprovador} ou a opção \texttt{confidencial});
+sumário; listas de abreviaturas e siglas e de símbolos (só as que tiverem
+itens usados). No perfil ABNT as listas vêm antes do sumário, como pede a
+NBR 14724. No perfil \texttt{classico} sai só o sumário: as listas de
+símbolos e de abreviaturas e siglas e o glossário saem no fim do documento. Cada lista pode ser desligada com as opções \texttt{semsiglas},
+\texttt{semsimbolos} e \texttt{semglossario}, p.\,ex.\
+\texttt{\textbackslash documentclass[classico,semsimbolos]\{gmap-ufrgs\}}. Documentos antigos que ainda têm \cs{imprimircapa},
+\cs{pdfbookmark\{\ldots\}\{toc\}}, \cs{tableofcontents*} e \cs{textual}
+continuam compilando: esses comandos são ignorados, com um aviso no
+\texttt{.log}. Para montar os pré-textuais à mão (resumo, lista de figuras,
+\ldots) use a opção \texttt{pretextualmanual}. A nota técnica e a carta não
+são afetadas.
+
+\section{Siglas, símbolos e glossário}\label{sec:siglas}
+A classe carrega o \pkg{glossaries-extra}. Defina os itens no
+\emph{preâmbulo} (direto ou num arquivo lido com \cs{input}) e use-os no texto
+com \cs{gls}; só entram nas listas os itens efetivamente usados. Não é
+preciso rodar \texttt{makeglossaries} nem configurar o \texttt{latexmk} ou o
+Overleaf (modo \texttt{noidx}): basta compilar duas vezes, como para o
+sumário. Valem tanto os comandos do \pkg{glossaries-extra} quanto os atalhos
+da classe:
+
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{6.4cm} p{9.1cm}@{}}
+\toprule
+\cs{sigla}\{rot\}\{SIGLA\}\{Expansão\} ou \cs{newacronym}\{\ldots\} &
+  lista de abreviaturas e siglas; no texto, a 1.ª vez sai ``Expansão
+  (SIGLA)'', depois só ``SIGLA''. Com \texttt{[user1=\{\ldots\}]} (p.\,ex.\
+  o nome em inglês) sai ``Expansão (SIGLA, user1)'' e, na lista, o
+  \texttt{user1} em itálico abaixo da expansão.\\
+\cs{abreviatura}\{rot\}\{et al.\}\{et alii\} &
+  mesma lista; no texto, sempre só a forma curta (sem ponto duplo no fim da
+  frase).\\
+\cs{newabbreviation}\{rot\}\{curta\}\{longa\} &
+  mesma lista; estilo padrão do \pkg{glossaries-extra} (longa (curta)),
+  que pode ser trocado com \cs{setabbreviationstyle}.\\
+\cs{simbolo}\{rot\}\{\textbackslash ensuremath\{\textbackslash sigma\}\}\{Descrição\} ou
+  \cs{glsxtrnewsymbol}\texttt{[description=\{\ldots\}]}\{rot\}\{símbolo\} &
+  lista de símbolos. Escreva o símbolo com \cs{ensuremath}, e não entre
+  \texttt{\$}: assim \cs{gls} funciona no texto e dentro de equações.\\
+\cs{termo}\{rot\}\{termo\}\{Definição\} ou
+  \cs{newglossaryentry}\{rot\}\{name=\ldots, description=\ldots\} &
+  glossário.\\
+\bottomrule
+\end{longtable}
+
+\begin{lstlisting}
+\sigla[user1={Applied Mechanics Group}]{gmap}{GMAp}{Grupo de Mecânica Aplicada}
+\sigla{mef}{MEF}{Método dos Elementos Finitos}
+\abreviatura{etal}{et al.}{et alii}
+\simbolo{sigma}{\ensuremath{\sigma}}{Tensão normal}
+\termo{malha}{malha}{Divisão do domínio em elementos.}
+...
+O \gls{mef} ...      % primeira vez: Método dos Elementos Finitos (MEF); depois: MEF
+Segundo Silva \gls{etal}, a tensão \gls{sigma} na \gls{malha} ...
+\end{lstlisting}
+\begin{itemize}
+  \item \cs{imprimirsiglas}: lista de abreviaturas e siglas (ordem alfabética);
+  \item \cs{imprimirsimbolos}: lista de símbolos (na ordem em que aparecem no
+    texto, NBR 14724);
+  \item \cs{imprimirglossario}: glossário (pós-textual, ordem alfabética,
+    no sumário). Se não for chamado, sai no fim do documento; chame-o antes
+    dos apêndices e anexos para seguir a ordem da ABNT.
+  \item No perfil \texttt{classico} as listas de símbolos e de abreviaturas
+    e siglas e o glossário saem sempre no fim do documento (depois das
+    referências, apêndices e anexos), nessa ordem e no sumário;
+    \cs{imprimirsiglas}, \cs{imprimirsimbolos} e \cs{imprimirglossario} são
+    ignorados.
+\end{itemize}
+Com os pré-textuais automáticos as duas listas saem sozinhas; no modo manual,
+chame-as onde quiser (lista vazia não gera página). Na lista de siglas a
+expansão sai com inicial maiúscula. O argumento opcional recebe chaves do
+\pkg{glossaries-extra}, p.\,ex.\
+\cs{sigla}\texttt{[longplural=\{\ldots\}]}\{\ldots\} ou
+\cs{termo}\texttt{[sort=\{acao\}]}\{acao\}\{ação\}\{\ldots\} (a ordenação
+sem ferramenta externa coloca letras acentuadas no fim; use \texttt{sort}
+nesses casos). Também valem \cs{glspl}, \cs{Gls}, \cs{glsxtrshort},
+\cs{glsxtrlong} e \cs{glsxtrfull}. Para mudar o que sai depois da descrição
+de uma sigla na lista, redefina \cs{glsxtrpostdescacronym}.
 
 \section{Assinaturas no texto}
 \cs{blocoassinatura} imprime um bloco de assinatura sem serifa, alinhado à
@@ -146,8 +245,27 @@ Chaves (no comando, no ambiente ou, para todo o documento, em
   \item \texttt{linha}: traço para assinatura à mão, acima do nome;
   \item \texttt{posicao=direita|centro|esquerda} (padrão: direita; no ambiente
     \texttt{assinaturas}, centro);
-  \item \texttt{espaco=1cm}: espaço vertical antes do bloco.
+  \item \texttt{espaco=1cm}: espaço vertical antes do bloco;
+  \item \texttt{nofim}: adia o bloco (ou o ambiente) para o fim do documento;
+  \item \texttt{novapagina}: começa uma página nova antes do bloco. Com
+    \texttt{nofim}, as assinaturas guardadas saem juntas numa página só
+    delas (basta uma delas ter a chave).
 \end{itemize}
+Sem \texttt{nofim}, a assinatura sai exatamente onde o comando está. Com
+\texttt{nofim}, ela é guardada e sai no fim de tudo: depois das referências,
+apêndices e anexos e também das listas automáticas de símbolos, de siglas e do
+glossário. Assim a assinatura pode ficar perto dos dados do documento, no
+início do arquivo:
+\begin{lstlisting}
+\chapter{Introdução}
+\blocoassinatura[nofim]{Prof. Fulano de Tal\\ Coordenador do projeto}
+...
+\end{lstlisting}
+\cs{configurarassinatura}\{nofim\} adia todas as assinaturas
+(\cs{configurarassinatura}\{nofim, novapagina\} as põe numa página à parte), e
+\cs{imprimirassinaturas} imprime as guardadas no ponto em que for usado. As
+assinaturas guardadas saem na ordem em que foram escritas, uma vez só.
+
 O \cs{assinatura} do \pkg{abntex2} (traço centralizado) continua disponível.
 
 \section{Figuras e tabelas (ABNT)}
@@ -190,6 +308,27 @@ Uma linha substitui o ambiente inteiro:
     80\,\% da largura do texto; \cs{tamanhofiguras}\{\} volta à escala 1.
 \end{itemize}
 
+\subsection{Referências cruzadas}
+Em vez de \texttt{Figura\textasciitilde\textbackslash ref\{fig:viga\}}, use os
+comandos abaixo: escrevem o nome e o número (o conjunto é um só link) e não
+deixam o número separado do nome numa quebra de linha.
+\begin{lstlisting}
+\reffig{fig:viga}             % Figura 1
+\reftab{tab:dados}            % Tabela 2
+\refeq{eq:equilibrio}         % Equação (3)
+\refcap{cap:intro}            % Capítulo 1
+\refsec{sec:metodo}           % Seção 2.1
+\refap{ap:calculos}           % Apêndice A
+\refanexo{an:normas}          % Anexo A
+\reffig{fig:a,fig:b,fig:c}    % Figuras 1, 2 e 3
+\refeq{eq:a,eq:b}             % Equações (1) e (2)
+\reffig*{fig:viga}            % Figura 1, sem link
+\end{lstlisting}
+Vários rótulos separados por vírgula saem no plural. Com a opção
+\texttt{english} os nomes saem em inglês (\emph{Figure 1}, \emph{Figures 1 and
+2}). Subfiguras do \pkg{gmap-figuras} também: \cs{reffig}\{fig:viga-2\} dá
+\emph{Figura 3(b)}.
+
 \section{Referências}
 Use \cs{cite} (autor-data entre parênteses) e \cs{citeonline} (autor no
 texto), com \cs{bibliography}\allowbreak\{arquivo\}\allowbreak{} (o estilo \texttt{abntex2-alf} é
@@ -221,33 +360,96 @@ Ambientes \texttt{code}, \texttt{tabelaverb}, \texttt{linhacomando} e
 \texttt{comandos} (via \pkg{fancyvrb}) e o estilo \texttt{gmappython} do
 \pkg{listings}.
 
+\subsection{\pkg{gmap-figuras}}
+Figuras com várias subfiguras, cortadas em blocos (páginas) com a legenda
+repetida e ``(continuação)'', sem montar \texttt{figure}/\cs{ContinuedFloat}
+à mão. Usa as subfiguras do próprio \pkg{memoir}, sem carregar \pkg{caption}
+nem \pkg{subcaption} (que mudariam o formato das legendas da classe), e segue
+o \cs{figura}: legenda acima no perfil ABNT e abaixo no \texttt{classico},
+\texttt{fonte} abaixo de cada bloco.
+\begin{lstlisting}
+\usepackage{gmap-figuras}
+...
+% lista de {arquivo}{sublegenda}; tudo numa figura flutuante
+\figuras{Viga em três estágios.}{
+  {viga-1}{Início.}, {viga-2}{Meio.}, {viga-3}{Fim.}}
+% exatamente aqui ([H]); 1 subfigura no 1.o bloco, 2 no seguinte
+\figuras*[porpagina={1,2}, rotulo=fig:viga]{Viga.}{
+  {viga-1}{Início.}, {viga-2}{Meio.}, {viga-3}{Fim.}}
+% 2 colunas, blocos de 4 (o último número se repete)
+\figuras[colunas=2, porpagina=4]{Malhas.}{{m1}{A.}, {m2}{B.}, ...}
+\end{lstlisting}
+\cs{serieFiguras} gera a lista a partir de uma série de valores: no padrão do
+arquivo \texttt{\#1} é o valor como escrito; na sublegenda, com vírgula
+decimal (chave \texttt{decimal}). Os valores podem estar num comando.
+\begin{lstlisting}
+\newcommand\espessuras{4.0, 9.0, 13.0}
+\serieFiguras*[rotulo=fig:abaco, porpagina={1,2}]
+  {figuras/abaco e=#1.pdf}      % abaco e=4.0.pdf, abaco e=9.0.pdf, ...
+  {\espessuras}
+  {Espessura de #1~mm.}         % Espessura de 4,0 mm.
+  {Ábacos para diferentes espessuras.}
+\end{lstlisting}
+Dentro de um \cs{newcommand}/\cs{NewDocumentCommand} escreva \texttt{\#\#1}
+no lugar de \texttt{\#1}.
+\begin{itemize}
+  \item Chaves próprias: \texttt{porpagina} (subfiguras por bloco; sem ela,
+    tudo num bloco), \texttt{colunas} (padrão 1), \texttt{espaco} (entre
+    linhas, padrão \texttt{0.5cm}), \texttt{continuacao} (texto dos blocos
+    seguintes; padrão ``(continuação)''/``(continued)'') e \texttt{decimal}
+    (padrão vírgula). Valem também as do \cs{figura}: \texttt{fonte},
+    \texttt{rotulo}, \texttt{pos}, \texttt{tamanho}, \texttt{escala}, chaves
+    do \cs{includegraphics}, \ldots
+  \item Cada subfigura ocupa a largura da sua coluna, reduzida se preciso
+    para o bloco caber na página; \texttt{tamanho=0.8} = 80\,\% da coluna.
+  \item Rótulos: a figura recebe \texttt{rotulo} (padrão
+    \texttt{fig:}\textit{primeiro arquivo}); cada subfigura,
+    \textit{rotulo}\texttt{-}\textit{n} (\texttt{fig:viga-2}) em \cs{figuras} ou
+    \textit{rotulo}\texttt{-}\textit{valor} (\texttt{fig:abaco-9.0}) em
+    \cs{serieFiguras}. \cs{ref} dá ``3'' e ``3(b)''.
+  \item Só o primeiro bloco entra na lista de figuras; os seguintes repetem
+    o número.
+\end{itemize}
+\cs{definirmapa}\{nome\}\{chave=valor, \ldots\} guarda uma tabela de
+correspondência e \cs{mapa}\{nome\}\{chave\} devolve o valor (é expansível:
+serve dentro de nomes de arquivo). A chave \texttt{*} é o valor para chaves
+ausentes; sem ela, uma chave ausente dá erro.
+\begin{lstlisting}
+\definirmapa{capacete}{360=1, 400=2, 450=3}
+HC\mapa{capacete}{360}          % HC1
+\end{lstlisting}
+
 \section{Listas auxiliares}
 Ambientes \texttt{listalfa} (\textit{(a), (b)\ldots}), \texttt{listtraco}
 (travessão) e \texttt{checklist} (caixas), e os comandos de tabela
 \cs{cinza} (célula) e \cs{linhacinza} (linha) com fundo cinza.
 
 \section{Logos e licença}\label{sec:logos}
-O código e a documentação são distribuídos sob a LPPL 1.3c ou posterior.
-Os logos \texttt{gmap-logo-ufrgs.png} (capa e cabeçalho) e
-\texttt{gmap-logo-gmap.pdf} são marcas da UFRGS e do GMAp, distribuídos junto
-com a classe pelo próprio GMAp/UFRGS para que o leiaute institucional funcione
-sem configuração. Eles \emph{não} são cobertos pela LPPL:
+Todos os arquivos são distribuídos sob a LPPL 1.3c ou posterior.
+Os logos \texttt{logo-example-01.pdf} (capa e cabeçalho) e
+\texttt{logo-example-02.pdf} não fazem parte do pacote do CTAN/\TeX{} Live:
 \begin{itemize}
-  \item podem ser redistribuídos sem modificação como parte deste pacote;
-  \item seu uso é reservado a documentos da UFRGS/GMAp e deve seguir as
-    normas da marca (\url{https://www.ufrgs.br/site/marca-ufrgs/});
-  \item fora da UFRGS, troque-os por outros com \cs{logoesquerda},
-    \cs{logodireita} e \cs{logotopoesquerda}.
+  \item estão na pasta \texttt{fig/} do repositório
+    (\url{https://github.com/GMAp-UFRGS/gmap-ufrgs}), são instalados pelo
+    \texttt{install.ps1}/\texttt{install.sh} e já vêm no template do Overleaf;
+  \item fora da UFRGS, troque-os por outros com \cs{logoesquerda}\{arq\},
+    \cs{logodireita}\{arq\} e \cs{logotopoesquerda}\{arq\}, ou desligue-os
+    com o argumento vazio (\cs{logoesquerda}\{\}).
 \end{itemize}
-Se um arquivo de logo não for encontrado, a classe emite um aviso e deixa o
-espaço em branco.
+A classe procura os logos na pasta do documento, em \texttt{fig/}, em
+\texttt{figuras/} e na instalação \TeX. Se um arquivo não for encontrado,
+emite um aviso (dizendo onde obtê-lo) e deixa o espaço em branco.
+Os metadados dos PDFs incluídos (título e nome do arquivo dos logos e
+figuras) não são copiados para o documento final.
 
 \section{Limitações conhecidas}
 \begin{itemize}
   \item Motor recomendado: pdf\LaTeX{}. Lua\LaTeX{} e Xe\LaTeX{} compilam,
     mas são menos testados.
-  \item Margens ABNT (3\,cm esquerda, 2\,cm direita); margens laterais de
-    2\,cm só com a opção \texttt{classico}.
+  \item Margens ABNT (3\,cm superior e esquerda, 2\,cm inferior e direita);
+    margens laterais de 2\,cm só com a opção \texttt{classico}. O cabeçalho
+    (logos) e o rodapé ficam dentro das margens superior e inferior, perto
+    das bordas da página.
   \item Com \texttt{english}, \texttt{\textbackslash citeonline} ainda usa
     ``e'' entre autores (texto fixo do \pkg{abntex2cite}).
   \item Nomes de comando não podem começar por \texttt{end} (restrição do
@@ -256,6 +458,20 @@ espaço em branco.
 
 \section{Histórico}
 \begin{description}
+  \item[v0.1 (2026/11/20)] Pré-textuais automáticos (capa, sumário, listas)
+    no perfil \texttt{classico} e com a opção \texttt{pretextualautomatico};
+    opções \texttt{pretextualmanual}, \texttt{semsiglas},
+    \texttt{semsimbolos} e \texttt{semglossario}. Listas automáticas de siglas, de símbolos
+    e glossário com o \pkg{glossaries-extra} (\cs{sigla}, \cs{abreviatura},
+    \cs{simbolo}, \cs{termo}, além dos comandos do próprio pacote, \cs{imprimirsiglas},
+    \cs{imprimirsimbolos}, \cs{imprimirglossario}), sem ferramenta externa.
+    Os metadados dos PDFs incluídos (p.\,ex.\ o título dos logos) não vão
+    mais para o documento. Cabeçalho e rodapé dentro das margens ABNT.
+    Novo exemplo \texttt{exemplo-classico.tex}.
+    Os logos da UFRGS e do GMAp saem do pacote do
+    CTAN; continuam no repositório Git e no template do Overleaf. A classe também
+    procura os logos em \texttt{fig/} e \texttt{figuras/}, e o aviso de logo
+    ausente diz onde obtê-los.
   \item[v0.0 (2026/11/13)] Primeira versão pública (CTAN): classe,
     \pkg{gmap-math} e \pkg{gmap-codigo}; opções \texttt{relatorio},
     \texttt{notatecnica}, \texttt{carta}, \texttt{english},
@@ -280,19 +496,37 @@ confidentiality notice) with \cs{imprimirfolhadecontrole}. Figure captions go
 above and the source line (\cs{fonte}) below. The \texttt{classico} option
 switches to the former GMAp layout (Latin Modern Sans, 2\,cm side margins,
 single spacing, numeric citations, captions below figures, revision on the
-cover, dd/mm/yyyy dates). \cs{figura}[keys]\{file\}\{caption\} inserts an
+cover, dd/mm/yyyy dates) and prints the cover, table of contents and lists
+of acronyms/symbols automatically at \cs{begin\{document\}} (option
+\texttt{pretextualmanual} turns this off; \texttt{pretextualautomatico}
+turns it on in the ABNT profile). Acronyms, symbols and glossary terms are
+defined in the preamble with \cs{sigla}, \cs{abreviatura}, \cs{simbolo} and
+\cs{termo} (or the usual \pkg{glossaries-extra} commands), used
+with \cs{gls}, and listed automatically (no external indexing tool) with
+\cs{imprimirsiglas}, \cs{imprimirsimbolos} and \cs{imprimirglossario}. \cs{figura}[keys]\{file\}\{caption\} inserts an
 image at scale 1 with an automatic \texttt{fig:}\textit{file} label (the starred
 form places it exactly there). \cs{blocoassinatura}[keys]\{line 1
 \textbackslash\textbackslash{} line 2 \ldots\} prints a right-aligned sans-serif
 signature block anywhere in the text; several people go side by side inside
 the \texttt{assinaturas} environment (keys: \texttt{imagem}, \texttt{altura},
-\texttt{linha}, \texttt{posicao}, \texttt{espaco}). Installation: through \texttt{tlmgr} or MiKTeX,
+\texttt{linha}, \texttt{posicao}, \texttt{espaco}, \texttt{nofim},
+\texttt{novapagina}). With \texttt{nofim} the block is deferred to the very
+end of the document, after references, appendices, annexes and the automatic
+lists (\texttt{novapagina} puts the deferred blocks on a page of their own);
+\cs{imprimirassinaturas} prints deferred blocks on the spot.
+The optional package \pkg{gmap-figuras} adds \cs{figuras}[keys]\{caption\}\{\{file\}\{subcaption\}, \ldots\}
+(subfigures split into blocks across pages with a ``continued'' caption; keys
+\texttt{porpagina}, \texttt{colunas}, \texttt{espaco}, \texttt{continuacao}),
+\cs{serieFiguras} (the same, generated from a file-name pattern and a list of
+values) and \cs{definirmapa}/\cs{mapa} (key=value lookup tables).
+Installation: through \texttt{tlmgr} or MiKTeX,
 or by copying the \texttt{.cls}/\texttt{.sty} files next to your document.
-License: LPPL 1.3c or later (code and documentation). The UFRGS and GMAp
-logos shipped with the class are trademarks, not covered by the LPPL: they may
-be redistributed unmodified with this package, but are reserved for UFRGS/GMAp
-documents; others should replace them with \cs{logoesquerda},
-\cs{logodireita} and \cs{logotopoesquerda} (see Section~\ref{sec:logos}).
+License: LPPL 1.3c or later (all files). The UFRGS and GMAp logos used by
+default are not part of the CTAN/TeX Live package: they are in the
+\texttt{fig/} folder of the Git repository and in the GMAp Overleaf template.
+Others should replace them with \cs{logoesquerda},
+\cs{logodireita} and \cs{logotopoesquerda}, or disable them with an empty
+argument (see Section~\ref{sec:logos}).
 Repository and bug tracker: \url{https://github.com/GMAp-UFRGS/gmap-ufrgs}.
 
 \end{document}

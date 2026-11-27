@@ -16,14 +16,11 @@
 %%
 %% The Current Maintainer of this work is Boris N. Rojo Tanzi.
 %%
-%% This work consists of the files gmap-ufrgs.cls, gmap-math.sty,
-%% gmap-codigo.sty, doc/gmap-ufrgs-doc.tex and example/exemplo-minimo.tex.
-%% The institutional logos gmap-logo-ufrgs.png and gmap-logo-gmap.pdf are
-%% distributed together with this work, but are NOT part of it and are
-%% NOT covered by the LPPL: they are trademarks of UFRGS and GMAp (see README).
+%% This work consists of all the files of the gmap-ufrgs repository
+%% (https://github.com/GMAp-UFRGS/gmap-ufrgs), all under this same license.
 %%
 \NeedsTeXFormat{LaTeX2e}[2022/06/01]
-\ProvidesClass{gmap-ufrgs}[2026/11/13 v0.0 Relatorios tecnicos GMAp/UFRGS (ABNT ou perfil classico)]
+\ProvidesClass{gmap-ufrgs}[2026/11/20 v0.1 Relatorios tecnicos GMAp/UFRGS (ABNT ou perfil classico)]
 
 %---------------------------------------------------------------------
 % Pacotes minimos necessarios antes das opcoes
@@ -59,15 +56,32 @@
 \DeclareOption{confidencial}{\gmap@conftrue}
 \DeclareOption{preliminar}{\gmap@prelimtrue}
 \DeclareOption{sans}{\gmap@sanstrue}
+% Elementos pre-textuais automaticos (capa, sumario, listas) no
+% \begin{document}: padrao no perfil classico, opcional no abnt
+\newcommand\gmap@autoopt{}
+\DeclareOption{pretextualautomatico}{\def\gmap@autoopt{1}}
+\DeclareOption{pretextualmanual}{\def\gmap@autoopt{0}}
+% Listas que nao devem sair (nem automaticas nem com \imprimir...)
+\DeclareOption{semsiglas}{\csdef{gmap@sem@siglas}{}}
+\DeclareOption{semsimbolos}{\csdef{gmap@sem@simbolos}{}}
+\DeclareOption{semglossario}{\csdef{gmap@sem@glossario}{}}
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{abntex2}}
 \ProcessOptions\relax
+\newif\ifgmap@auto
+\ifdefstring{\gmap@autoopt}{1}{\gmap@autotrue}{%
+  \ifdefstring{\gmap@autoopt}{0}{}{\ifgmap@classico\gmap@autotrue\fi}}
+% so no relatorio (a nota tecnica e a carta nao tem sumario)
+\ifgmap@nota\gmap@autofalse\fi
+\ifgmap@carta\gmap@autofalse\fi
 
 %---------------------------------------------------------------------
 % Classe base: abntex2 (memoir). Portugues e' o idioma principal; com a
 % opcao english, o idioma ativo passa a ser o ingles no inicio do documento.
+% chapter=TITLE: titulos de capitulo (inclusive \chapter* e pre-textuais)
+% sempre em maiusculas.
 %---------------------------------------------------------------------
 \PassOptionsToPackage{english}{babel}
-\LoadClass[12pt,a4paper,oneside,openany,sumario=tradicional]{abntex2}
+\LoadClass[12pt,a4paper,oneside,openany,sumario=tradicional,chapter=TITLE]{abntex2}
 \ifgmap@english
   \AtBeginDocument{\selectlanguage{english}}
 \fi
@@ -89,8 +103,20 @@
   \let\today\gmap@hojenum
   \captionnamefont{\footnotesize\bfseries}
   \captiontitlefont{\footnotesize\bfseries}
-  \AtBeginDocument{\captiondelim{:~}}
 \fi
+% legendas "Figura 1: Texto" (e nao "Figura 1 -- Texto") em todos os perfis,
+% tambem nas listas de figuras e de tabelas
+\AtBeginDocument{\captiondelim{:~}}
+\renewcommand*{\cftfigureaftersnum}{:\hfill}
+\renewcommand*{\cfttableaftersnum}{:\hfill}
+% legendas sem palavras hifenizadas ("carrega-mento"). Acrescentado ao estilo
+% de legenda do memoir no \begin{document}, para valer mesmo que o documento
+% troque o \captionstyle no preambulo (ex.: \captionstyle{\centering}).
+\newcommand\gmap@semhifen{\hyphenpenalty=\@M \exhyphenpenalty=\@M}
+\AtBeginDocument{%
+  \appto\@contcstyle{\gmap@semhifen}%
+  \appto\@contcshortstyle{\gmap@semhifen}%
+  \appto\@contsubcstyle{\gmap@semhifen}}
 
 %---------------------------------------------------------------------
 % Pacotes
@@ -105,15 +131,58 @@
 % (lmss existe nas codificacoes T1 e TU: vale para pdfLaTeX, LuaLaTeX e XeLaTeX)
 \ifgmap@classico\renewcommand{\rmdefault}{lmss}\fi
 \RequirePackage{graphicx}
+% PDFs incluidos (logos, figuras) nao levam para o documento final os seus
+% metadados (titulo, nome do arquivo, numero da pagina): leitores de PDF
+% nao mostram, p.ex., "logo_GMAp" ao passar sobre o logo ou nas propriedades
+\ifdefined\pdfsuppressptexinfo \pdfsuppressptexinfo=14 \fi
+% os dois logos tem "page group": aviso inofensivo do pdfTeX a cada pagina
+\ifdefined\pdfsuppresswarningpagegroup \pdfsuppresswarningpagegroup=1 \fi
+\ifLuaTeX\ifdefined\pdfvariable \pdfvariable suppressoptionalinfo 14 \fi\fi
 % Pastas onde \includegraphics e \figura procuram as imagens
 \graphicspath{{fig/}{figuras/}}
 \RequirePackage[table]{xcolor}
 \RequirePackage{microtype}
 \RequirePackage{indentfirst}
 \RequirePackage{amsmath,amssymb}
+% Numeros e unidades (siunitx v3): virgula decimal e ponto (\cdot) na
+% potencia de 10 (1,5\cdot10^{3}); incerteza separada (1,5 \pm 0,1).
+% Na opcao english, ponto decimal. Equivale as chaves antigas (v1)
+% decimalsymbol=comma, expproduct=., seperr.
+% No texto, numeros e unidades saem na fonte do texto (sem serifa no
+% perfil classico e na opcao sans), seguindo negrito/italico ao redor;
+% dentro de $...$ continuam na fonte matematica.
+\RequirePackage{siunitx}
+\sisetup{
+  exponent-product     = \cdot,
+  separate-uncertainty = true,
+  mode                 = match,
+  reset-text-family    = false,
+  reset-text-series    = false,
+  reset-text-shape     = false,
+}
+\ifgmap@english
+  \sisetup{output-decimal-marker = {.}}
+\else
+  % Listas e faixas em portugues: \qtylist{1;2;3}{\m} -> 1 m, 2 m e 3 m
+  \sisetup{
+    output-decimal-marker = {,},
+    list-final-separator  = {\text{ e }},
+    list-pair-separator   = {\text{ e }},
+    range-phrase          = {\text{ a }},
+  }
+\fi
+% Polegada: \qty{5.5}{\inch} -> 5,5 in; \qty{9}{\pol} -> 9" (aspas
+% coladas ao numero, sem espaco); \unit{\polegada} -> pol (cabecalho de
+% tabela, onde as aspas sozinhas confundem)
+\DeclareSIUnit\inch{in}
+\DeclareSIUnit[quantity-product = {}]\pol{\mbox{\textquotedbl}}
+\DeclareSIUnit\polegada{pol}
 \RequirePackage{booktabs,tabularx,multirow,longtable}
 \RequirePackage{float}
 \RequirePackage{xspace}
+% o abntex2cite traz uma copia do substr; carregando o original antes, o
+% glossaries (que tambem usa o substr) nao gera "already defined"
+\RequirePackage{substr}
 \ifgmap@classico
   \RequirePackage[num,abnt-etal-cite=2,abnt-etal-list=2]{abntex2cite}
   \citebrackets[]% citacao [1], como no formato anterior
@@ -147,6 +216,7 @@
   \def\gmap@acname{A/C}%
   \def\gmap@atenciosamentename{Atenciosamente,}%
   \def\gmap@prelimname{PRELIMINAR}%
+  \def\gmap@glossarioname{Gloss\'ario}%
   \def\gmap@confname{ATEN\c{C}\~AO: \textbf{Este \'e um documento confidencial}.
     A utiliza\c{c}\~ao, interpreta\c{c}\~ao e homologa\c{c}\~ao dos dados aqui
     contidos \'e de inteira responsabilidade do solicitante. O Grupo de Mec\^anica
@@ -176,6 +246,7 @@
   \def\gmap@acname{Attn.}%
   \def\gmap@atenciosamentename{Sincerely,}%
   \def\gmap@prelimname{PRELIMINARY}%
+  \def\gmap@glossarioname{Glossary}%
   \def\gmap@confname{NOTICE: \textbf{This is a confidential document}.
     The use, interpretation and homologation of the data herein is the sole
     responsibility of the requester. The Applied Mechanics Group -- GMAp/UFRGS
@@ -185,6 +256,27 @@
     reproduced without authorization from GMAp or the requester. Copyright of
     the text is reserved to the parties and no part of this document may be
     used for public disclosure without prior authorization.}%
+}
+% Nomes usados por \reffig, \reftab, ... (singular e plural)
+\addto\captionsbrazil{%
+  \def\gmap@ref@fig{Figura}\def\gmap@ref@figs{Figuras}%
+  \def\gmap@ref@tab{Tabela}\def\gmap@ref@tabs{Tabelas}%
+  \def\gmap@ref@eq{Equa\c{c}\~ao}\def\gmap@ref@eqs{Equa\c{c}\~oes}%
+  \def\gmap@ref@cap{Cap\'itulo}\def\gmap@ref@caps{Cap\'itulos}%
+  \def\gmap@ref@sec{Se\c{c}\~ao}\def\gmap@ref@secs{Se\c{c}\~oes}%
+  \def\gmap@ref@ap{Ap\^endice}\def\gmap@ref@aps{Ap\^endices}%
+  \def\gmap@ref@anexo{Anexo}\def\gmap@ref@anexos{Anexos}%
+  \def\gmap@ref@e{e}%
+}
+\addto\captionsenglish{%
+  \def\gmap@ref@fig{Figure}\def\gmap@ref@figs{Figures}%
+  \def\gmap@ref@tab{Table}\def\gmap@ref@tabs{Tables}%
+  \def\gmap@ref@eq{Equation}\def\gmap@ref@eqs{Equations}%
+  \def\gmap@ref@cap{Chapter}\def\gmap@ref@caps{Chapters}%
+  \def\gmap@ref@sec{Section}\def\gmap@ref@secs{Sections}%
+  \def\gmap@ref@ap{Appendix}\def\gmap@ref@aps{Appendices}%
+  \def\gmap@ref@anexo{Annex}\def\gmap@ref@anexos{Annexes}%
+  \def\gmap@ref@e{and}%
 }
 
 %---------------------------------------------------------------------
@@ -221,23 +313,31 @@
 \newcommand\aoscuidados[1]{\gdef\gmap@aoscuidados{#1}}
 \newcommand\assunto[1]{\gdef\gmap@assunto{#1}}
 
-% Logos (arquivos instalados junto com a classe; podem ser trocados)
-\newcommand\gmap@logoesq{gmap-logo-ufrgs.png}
-\newcommand\gmap@logodir{gmap-logo-gmap.pdf}
-\newcommand\gmap@logotopoesq{gmap-logo-ufrgs.png}
+% Logos (estao no repositorio Git, em fig/; podem ser trocados, ou
+% desligados com \logoesquerda{} etc.)
+\newcommand\gmap@logoesq{logo-example-01.pdf}
+\newcommand\gmap@logodir{logo-example-02.pdf}
+\newcommand\gmap@logotopoesq{logo-example-01.pdf}
 \newcommand\logoesquerda[1]{\gdef\gmap@logoesq{#1}}
 \newcommand\logodireita[1]{\gdef\gmap@logodir{#1}}
 \newcommand\logotopoesquerda[1]{\gdef\gmap@logotopoesq{#1}}
 
-% Imprime logo se existir; senao avisa uma vez e deixa espaco vazio
+% Imprime logo se existir (na pasta do documento, em fig/ ou figuras/, ou
+% instalado); senao avisa uma vez e deixa espaco vazio
 \newcommand\gmap@logo[2]{%
   \ifdefempty{#1}{}{%
     \IfFileExists{#1}{\includegraphics[#2]{#1}}{%
+    \IfFileExists{fig/#1}{\includegraphics[#2]{fig/#1}}{%
+    \IfFileExists{figuras/#1}{\includegraphics[#2]{figuras/#1}}{%
       \ifgmap@warned\else
         \global\gmap@warnedtrue
         \PackageWarningNoLine{gmap-ufrgs}{Logo not found (ignored): #1.\MessageBreak
+          Get the UFRGS/GMAp logos from\MessageBreak
+          https://github.com/GMAp-UFRGS/gmap-ufrgs (fig/)\MessageBreak
+          and put them next to your document or in fig/,\MessageBreak
+          or disable them with \string\logoesquerda{} etc.\MessageBreak
           See section "Logos" of the manual}%
-      \fi}}}
+      \fi}}}}}
 
 % Pessoas: autores (N), verificador e aprovador
 \newcounter{gmap@naut}
@@ -264,40 +364,82 @@
 \renewcommand{\ABNTEXchapterfontsize}{\Large}
 \renewcommand{\ABNTEXsectionfontsize}{\large}
 \renewcommand{\ABNTEXsubsectionfontsize}{\normalsize}
+% Capitulos tambem em maiusculas no sumario, como no titulo (chapter=TITLE).
+% Mesmo recurso do sumario=abnt-6027-2012 do abntex2, mas so para os
+% capitulos e mantendo o resto do sumario tradicional; os marcadores do
+% PDF continuam com o texto original.
+\settocpreprocessor{chapter}{%
+  \let\gmap@tocorig\f@rtoc
+  \def\f@rtoc{\texorpdfstring{\MakeTextUppercase{\gmap@tocorig}}{\gmap@tocorig}}}
 
 %---------------------------------------------------------------------
 % Cabecalho e rodape (memoir)
 %---------------------------------------------------------------------
-% Margens verticais: o cabecalho comeca a 2 cm do topo da pagina e o
-% rodape termina a 2 cm da borda inferior (margens superior = inferior).
-\newlength{\gmap@margemvert}\setlength{\gmap@margemvert}{2cm}
+% Margens verticais (ABNT): o texto comeca a 3 cm do topo e termina a 2 cm
+% da borda inferior. Cabecalho e rodape ficam DENTRO dessas margens, perto
+% das bordas: o topo dos logos fica a ~1 cm do topo da pagina e a linha de
+% base do rodape a 1 cm da borda inferior.
+\newlength{\gmap@margemsup}\setlength{\gmap@margemsup}{3cm}
+\newlength{\gmap@margeminf}\setlength{\gmap@margeminf}{2cm}
+\newlength{\gmap@headdrop}\setlength{\gmap@headdrop}{0.8cm}
 \newlength{\gmap@headh}\setlength{\gmap@headh}{48pt}
-\newlength{\gmap@headsep}\setlength{\gmap@headsep}{18pt}
-\newlength{\gmap@footh}\setlength{\gmap@footh}{32pt}
-\newlength{\gmap@upper}
-\setlength{\gmap@upper}{\gmap@margemvert}
-\addtolength{\gmap@upper}{\gmap@headh}
-\addtolength{\gmap@upper}{\gmap@headsep}
-\newlength{\gmap@lower}
-\setlength{\gmap@lower}{\gmap@margemvert}
-\addtolength{\gmap@lower}{\gmap@footh}
-\setulmarginsandblock{\gmap@upper}{\gmap@lower}{*}
+\newlength{\gmap@footskip}\setlength{\gmap@footskip}{1cm}
+\newlength{\gmap@headsep}% o que sobra entre o cabecalho e o texto
+\setlength{\gmap@headsep}{\dimexpr\gmap@margemsup-\gmap@headdrop-\gmap@headh\relax}
+\setulmarginsandblock{\gmap@margemsup}{\gmap@margeminf}{*}
 % classico: margens laterais de 2 cm (largura de texto de 17 cm em A4)
 \ifgmap@classico\setlrmarginsandblock{2cm}{2cm}{*}\fi
-\setheadfoot{\gmap@headh}{\gmap@footh}
-\setlength{\headdrop}{\gmap@margemvert}
+\setheadfoot{\gmap@headh}{\gmap@footskip}
+\setlength{\headdrop}{\gmap@headdrop}
 \setlength{\headsep}{\gmap@headsep}
 \checkandfixthelayout[fixed]
 
+% Notas de revisao: \todo{...} na margem, \todo[inline]{...} no texto,
+% \missingfigure{...} e \listoftodos (com a cor de cada nota).
+% A largura da nota na margem e definida depois do layout, para que o
+% \checkandfixthelayout nao a altere; cabe nas margens laterais de 2 cm.
+% Texto em \footnotesize: em corpo 12 uma palavra como "Revisar" ja nao
+% cabe em 1,5 cm.
+\RequirePackage[colorinlistoftodos,textsize=footnotesize]{todonotes}
+\setlength{\marginparwidth}{1.5cm}
+\ifgmap@english\else
+  \renewcommand*{\@todonotes@todolistname}{Lista de pend\^encias}
+  \renewcommand*{\@todonotes@MissingFigureText}{Figura}
+  \renewcommand*{\@todonotes@MissingFigureUp}{Figura}
+  \renewcommand*{\@todonotes@MissingFigureDown}{pendente}
+\fi
+
+% Alturas dos logos no cabecalho (cabem na altura do cabecalho, 48pt).
+% As letras "UFRGS" ocupam 39% da altura do logo da UFRGS e as maiusculas
+% do GMAp 74% do logo do GMAp: com 1,5 cm e 0,8 cm as letras dos dois
+% ficam da mesma altura. O GMAp desce 23% da sua altura (a perna do "p")
+% para que as letras dos dois logos fiquem na mesma linha de base.
+\newlength{\gmap@logoaltesq}\setlength{\gmap@logoaltesq}{1.5cm}
+\newlength{\gmap@logoaltdir}\setlength{\gmap@logoaltdir}{0.8cm}
+\newcommand\gmap@logodireito{%
+  \raisebox{-0.23\gmap@logoaltdir}%
+    {\gmap@logo{\gmap@logodir}{height=\gmap@logoaltdir}}}
+
 \makepagestyle{gmap}
 \makeoddhead{gmap}%
-  {\gmap@logo{\gmap@logotopoesq}{height=1.5cm}}%
+  {\gmap@logo{\gmap@logotopoesq}{height=\gmap@logoaltesq}}%
   {\ifgmap@prelim\textcolor{red}{\sffamily\bfseries\gmap@prelimname}\fi}%
-  {\gmap@logo{\gmap@logodir}{height=1.1cm}}
+  {\gmap@logodireito}
 \makeoddfoot{gmap}%
   {\ifgmap@prelim\textcolor{red}{\scriptsize\sffamily\gmap@prelimname}\fi}%
   {}%
   {\scriptsize\sffamily\gmap@rodapetexto\thepage}
+
+% Capa: logos no cabecalho e instituicao no rodape, dentro das margens
+% (o rodape cresce para cima a partir da linha de base, nunca passa
+% para a pagina seguinte, por maior que seja a equipe)
+\makepagestyle{gmapcapa}
+\makeoddhead{gmapcapa}%
+  {\gmap@logo{\gmap@logoesq}{height=\gmap@logoaltesq}}{}%
+  {\gmap@logodireito}
+\makeoddfoot{gmapcapa}{}%
+  {\parbox[b]{\textwidth}{\centering\sffamily\footnotesize\color{gray}%
+     \gmap@instname\\ \gmap@univname\\ {\scriptsize\gmap@enderecoinst}}}{}
 
 % Texto do rodape: \rodapeprojeto; no perfil classico, se nao for dado,
 % usa o nome do projeto em maiusculas (nada fica escrito na classe)
@@ -331,6 +473,58 @@
 \renewcommand{\theHtable}{\arabic{table}}
 
 %---------------------------------------------------------------------
+% Referencias cruzadas com o nome: \reffig{fig:viga} -> Figura 1 (o nome
+% e o numero formam um so link). Varios rotulos separados por virgula
+% saem no plural: \reffig{fig:a,fig:b,fig:c} -> Figuras 1, 2 e 3.
+% Com *, sem link. \refeq poe o numero entre parenteses: Equacao (1).
+% Nomes no idioma do documento (Figure 1 com a opcao english).
+%---------------------------------------------------------------------
+\ExplSyntaxOn
+\seq_new:N \l__gmap_ref_seq
+\tl_new:N \l__gmap_ref_tl
+% numero de um rotulo (so no \refeq entre parenteses): #1 = tipo, #2 = rotulo
+\cs_new:Npn \__gmap_ref_numero:nn #1#2
+  { \str_if_eq:nnTF {#1} { eq } { ( \ref* {#2} ) } { \ref* {#2} } }
+% nome e numero de um rotulo: Figura~1
+\cs_new:Npn \__gmap_ref_um:nn #1#2
+  { \use:c { gmap@ref@#1 } \nobreakspace \__gmap_ref_numero:nn {#1} {#2} }
+\cs_generate_variant:Nn \__gmap_ref_um:nn { nV }
+% link para o rotulo #1 com o texto #2
+\cs_new_protected:Npn \__gmap_ref_link:nn #1#2 { \hyperref [ #1 ] { #2 } }
+\cs_generate_variant:Nn \__gmap_ref_link:nn { Vn }
+% #1 = estrela, #2 = tipo (fig, tab, ...), #3 = rotulos
+\cs_new_protected:Npn \__gmap_ref:nnn #1#2#3
+  {
+    \seq_set_from_clist:Nn \l__gmap_ref_seq {#3}
+    \int_compare:nNnTF { \seq_count:N \l__gmap_ref_seq } = { 1 }
+      {
+        \seq_get_left:NN \l__gmap_ref_seq \l__gmap_ref_tl
+        \bool_if:NTF #1
+          { \__gmap_ref_um:nV {#2} \l__gmap_ref_tl }
+          { \__gmap_ref_link:Vn \l__gmap_ref_tl { \__gmap_ref_um:nV {#2} \l__gmap_ref_tl } }
+      }
+      {
+        \seq_set_map:NNn \l__gmap_ref_seq \l__gmap_ref_seq
+          {
+            \bool_if:NTF #1
+              { \__gmap_ref_numero:nn {#2} {##1} }
+              { \hyperref [ ##1 ] { \__gmap_ref_numero:nn {#2} {##1} } }
+          }
+        \use:c { gmap@ref@#2s } \nobreakspace
+        \seq_use:Nnnn \l__gmap_ref_seq
+          { \c_space_tl \gmap@ref@e \c_space_tl }
+          { , \c_space_tl }
+          { \c_space_tl \gmap@ref@e \c_space_tl }
+      }
+  }
+\clist_map_inline:nn { fig, tab, eq, cap, sec, ap, anexo }
+  {
+    \exp_args:Nc \NewDocumentCommand { ref #1 } { s m }
+      { \__gmap_ref:nnn {##1} {#1} {##2} }
+  }
+\ExplSyntaxOff
+
+%---------------------------------------------------------------------
 % Aviso de confidencialidade
 %---------------------------------------------------------------------
 \newcommand\confidencial{%
@@ -349,10 +543,8 @@
   \ifdefempty{\imprimirlocal}{}{\imprimirlocal, }\imprimirdata}
 
 \newcommand\gmap@capa@relatorio{%
-  \begin{capa}\begin{SingleSpacing}\sffamily
-    \thispagestyle{empty}%
-    \noindent\gmap@logo{\gmap@logoesq}{width=3.5cm}\hfill\gmap@logo{\gmap@logodir}{width=3.5cm}\par
-    \vfill
+  \begin{capa}\aliaspagestyle{titlingpage}{gmapcapa}\begin{SingleSpacing}\sffamily
+    \vspace*{\fill}
     \begin{center}
       {\color{gmapazul}\rule{\linewidth}{0.8pt}\par\vspace{1ex}%
        {\large\bfseries\gmap@projeto\par}\vspace{1ex}\rule{\linewidth}{0.8pt}\par}
@@ -370,19 +562,14 @@
         \gmap@equipe\par
         \ifdefempty{\gmap@codigos}{}{\medskip\gmap@codigos\par}
       \end{minipage}\end{flushright}}
-    \vfill
-    \begin{center}\footnotesize\color{gray}
-      \gmap@instname\\ \gmap@univname\\ {\scriptsize\gmap@enderecoinst}
-    \end{center}
+    \vspace*{\fill}
   \end{SingleSpacing}\end{capa}}
 
 % Perfil classico: capa do formato anterior (projeto entre filetes,
 % tipo + numero, revisao, titulo, data; equipe deslocada a direita)
 \newcommand\gmap@capa@classico{%
-  \begin{capa}\begin{SingleSpacing}\sffamily
-    \thispagestyle{empty}%
-    \noindent\gmap@logo{\gmap@logoesq}{width=3.5cm}\hfill\gmap@logo{\gmap@logodir}{width=3.5cm}\par
-    \vfill
+  \begin{capa}\aliaspagestyle{titlingpage}{gmapcapa}\begin{SingleSpacing}\sffamily
+    \vspace*{\fill}
     \begin{center}
       {\color{gmapazul}\rule{\linewidth}{0.8pt}\par\vspace{2ex}%
        {\large\bfseries\gmap@projeto\par}\vspace{2ex}\rule{\linewidth}{0.8pt}\par}
@@ -403,10 +590,7 @@
         \ifdefempty{\gmap@codigos}{}{\medskip\gmap@codigos\par}
         \ifdefempty{\gmap@gerencia}{}{\medskip\gmap@gerencianame: \gmap@gerencia\par}
       \end{minipage}\par}
-    \vfill
-    \begin{center}\footnotesize\color{gray}
-      \gmap@instname\\ \gmap@univname\\ {\scriptsize\gmap@enderecoinst}
-    \end{center}
+    \vspace*{\fill}
   \end{SingleSpacing}\end{capa}}
 
 % Nota tecnica: bloco de titulo compacto, sem pagina propria
@@ -453,13 +637,20 @@
 %   chaves: imagem=arquivo (imagem da assinatura, acima do texto),
 %     altura=1.2cm (altura da imagem ou do espaco para assinar),
 %     linha (traco para assinatura a mao), posicao=direita|centro|esquerda,
-%     espaco=1cm (espaco vertical antes do bloco)
+%     espaco=1cm (espaco vertical antes do bloco),
+%     nofim (adia o bloco para o fim do documento, ver abaixo),
+%     novapagina (comeca uma pagina nova antes do bloco; com nofim, as
+%       assinaturas guardadas saem juntas numa pagina so delas)
 %   Varias pessoas lado a lado (blocos centrados e distribuidos):
 %   \begin{assinaturas}[chaves]
 %     \blocoassinatura{...}
 %     \blocoassinatura{...}
 %   \end{assinaturas}
 %   \configurarassinatura{chaves} muda o padrao de todas as assinaturas.
+%   Sem nofim, a assinatura sai onde o comando esta. Com nofim, ela e'
+%   guardada e sai no fim de tudo: depois das referencias, apendices,
+%   anexos e das listas automaticas de simbolos, siglas e glossario.
+%   \imprimirassinaturas imprime ali as guardadas.
 %---------------------------------------------------------------------
 \ExplSyntaxOn
 \tl_new:N   \l__gmap_ass_img_tl
@@ -468,6 +659,11 @@
 \skip_new:N \l__gmap_ass_espaco_skip
 \bool_new:N \l__gmap_ass_linha_bool
 \bool_new:N \l__gmap_ass_grupo_bool
+\bool_new:N \l__gmap_ass_nofim_bool
+\bool_new:N \l__gmap_ass_novapag_bool
+\bool_new:N \g__gmap_ass_novapag_bool
+\tl_new:N   \g__gmap_ass_fim_tl
+\tl_new:N   \l__gmap_ass_fim_tl
 
 \keys_define:nn { gmap/assinatura }
   {
@@ -485,6 +681,10 @@
           { \clist_item:nn { r , c , l , r , c , l } { \l_keys_choice_int } }
       } ,
     posicao .initial:n  = direita ,
+    nofim   .bool_set:N = \l__gmap_ass_nofim_bool ,
+    nofim   .default:n  = true ,
+    novapagina .bool_set:N = \l__gmap_ass_novapag_bool ,
+    novapagina .default:n  = true ,
   }
 
 % o bloco: [imagem ou espaco] [traco] linhas de texto, numa tabela de uma coluna
@@ -516,31 +716,72 @@
         \hspace* { \fill }
       }
       {
-        \par
-        \vspace { \l__gmap_ass_espaco_skip }
-        \noindent
-        \use:e { \exp_not:N \makebox [ \exp_not:N \linewidth ] [ \l__gmap_ass_pos_tl ] }
-          { \__gmap_ass_bloco:n {#2} }
-        \par \bigskip
+        \bool_if:NTF \l__gmap_ass_nofim_bool
+          {
+            \tl_gput_right:Nn \g__gmap_ass_fim_tl
+              { \blocoassinatura [ #1 , nofim = false , novapagina = false ] {#2} }
+            \bool_if:NT \l__gmap_ass_novapag_bool
+              { \bool_gset_true:N \g__gmap_ass_novapag_bool }
+          }
+          {
+            \par
+            \bool_if:NT \l__gmap_ass_novapag_bool { \clearpage }
+            \vspace { \l__gmap_ass_espaco_skip }
+            \noindent
+            \use:e { \exp_not:N \makebox [ \exp_not:N \linewidth ] [ \l__gmap_ass_pos_tl ] }
+              { \__gmap_ass_bloco:n {#2} }
+            \par \bigskip
+          }
       }
     \group_end:
     \ignorespaces
   }
 
-\NewDocumentEnvironment { assinaturas } { O{} }
+\NewDocumentEnvironment { assinaturas } { O{} +b }
   {
-    \par
     \keys_set:nn { gmap/assinatura } { posicao = centro , #1 }
-    \vspace { \l__gmap_ass_espaco_skip }
-    \bool_set_true:N \l__gmap_ass_grupo_bool
-    \skip_set:Nn \parfillskip { 0pt }
-    \noindent \hspace* { \fill }
-    \ignorespaces
+    \bool_if:NTF \l__gmap_ass_nofim_bool
+      {
+        \tl_gput_right:Nn \g__gmap_ass_fim_tl
+          { \begin { assinaturas } [ #1 , nofim = false , novapagina = false ] #2 \end { assinaturas } }
+        \bool_if:NT \l__gmap_ass_novapag_bool
+          { \bool_gset_true:N \g__gmap_ass_novapag_bool }
+        \ignorespacesafterend
+      }
+      {
+        \par
+        \bool_if:NT \l__gmap_ass_novapag_bool { \clearpage }
+        \vspace { \l__gmap_ass_espaco_skip }
+        \bool_set_true:N \l__gmap_ass_grupo_bool
+        \skip_set:Nn \parfillskip { 0pt }
+        \noindent \hspace* { \fill }
+        \ignorespaces #2
+        \par \bigskip % cada \blocoassinatura ja deixa um \fill depois de si
+      }
   }
-  { \par \bigskip }% cada \blocoassinatura ja deixa um \fill depois de si
+  { }
 
 \NewDocumentCommand \configurarassinatura { m }
   { \keys_set:nn { gmap/assinatura } {#1} }
+
+% assinaturas guardadas com nofim: saem uma vez so, todas juntas (numa
+% pagina nova se alguma pediu novapagina)
+\cs_new_protected:Npn \__gmap_ass_fim:
+  {
+    \tl_if_empty:NF \g__gmap_ass_fim_tl
+      {
+        \tl_set_eq:NN \l__gmap_ass_fim_tl \g__gmap_ass_fim_tl
+        \tl_gclear:N \g__gmap_ass_fim_tl
+        \bool_if:NT \g__gmap_ass_novapag_bool { \par \clearpage }
+        \bool_gset_false:N \g__gmap_ass_novapag_bool
+        \l__gmap_ass_fim_tl
+      }
+  }
+\NewDocumentCommand \imprimirassinaturas { } { \__gmap_ass_fim: }
+% no fim de tudo: depois das listas automaticas de simbolos, siglas e
+% glossario (que tambem estao no enddocument, com o rotulo gmap-ufrgs)
+\AddToHook { enddocument } [ gmap-ufrgs/assinaturas ] { \__gmap_ass_fim: }
+\DeclareHookRule { enddocument } { gmap-ufrgs } { before } { gmap-ufrgs/assinaturas }
 \ExplSyntaxOff
 
 %---------------------------------------------------------------------
@@ -750,6 +991,198 @@
 %---------------------------------------------------------------------
 \ifgmap@nota
   \counterwithout{section}{chapter}
+\fi
+
+%---------------------------------------------------------------------
+% Siglas, simbolos e glossario automaticos (pacote glossaries-extra, modo
+% "noidx": nao precisa de makeindex/makeglossaries nem de configurar o
+% latexmk ou o Overleaf; basta compilar duas vezes, como para o sumario)
+% Valem os comandos do glossaries-extra e os atalhos da classe:
+%   \newabbreviation[chaves]{rotulo}{curta}{longa}  \
+%   \newacronym[chaves]{rotulo}{SIGLA}{Expansao}     > abreviaturas e siglas
+%   \sigla[chaves]{rotulo}{SIGLA}{Expansao}         |  (= \newacronym)
+%   \abreviatura[chaves]{rotulo}{et al.}{et alii}   /  (so a forma curta)
+%   \glsxtrnewsymbol[description={...}]{rotulo}{$\sigma$}  \  simbolos
+%   \simbolo[chaves]{rotulo}{\ensuremath{\sigma}}{Descricao} / (nao $...$)
+%   \newglossaryentry{rotulo}{name={...},description={...}} \ glossario
+%   \termo[chaves]{rotulo}{Termo}{Definicao}                /
+% (definidos no preambulo). No texto: \gls{rotulo} (\glspl, \Gls, \glsxtrshort,
+% \glsxtrlong, \glsxtrfull). So entram nas listas os itens usados no texto.
+% Siglas (\newacronym/\sigla): 1.a vez "Expansao (SIGLA)"; com user1={...}
+% (p.ex. o nome em ingles), "Expansao (SIGLA, user1)" e, na lista, user1 em
+% italico abaixo da expansao. \newabbreviation segue o estilo padrao do
+% glossaries-extra (long-short); mude com \setabbreviationstyle{...} no
+% preambulo, antes das definicoes.
+% Listas: \imprimirsiglas e \imprimirsimbolos (pre-textuais, sem pagina
+% propria se vazias) e \imprimirglossario (pos-textual, no sumario; se nao
+% for chamado, sai no fim do documento). Com os pre-textuais automaticos,
+% as listas de siglas e de simbolos saem sozinhas. No perfil classico as
+% listas de simbolos e de siglas e o glossario saem sempre no fim do
+% documento (nessa ordem), e \imprimirsiglas, \imprimirsimbolos e \imprimirglossario
+% sao ignorados.
+%---------------------------------------------------------------------
+\RequirePackage[abbreviations,symbols,nonumberlist,nogroupskip,
+  translate=false]{glossaries-extra}
+\makenoidxglossaries
+% documento sem siglas/termos nao deve gerar aviso
+\let\warn@noprintglossary\relax
+% lista desligada por opcao: \gls dessas entradas sem link (nao ha destino)
+\ifcsdef{gmap@sem@siglas}{\GlsDeclareNoHyperList{abbreviations}}{}
+\ifcsdef{gmap@sem@simbolos}{\GlsDeclareNoHyperList{symbols}}{}
+\ifcsdef{gmap@sem@glossario}{\GlsDeclareNoHyperList{main}}{}
+\setabbreviationstyle[acronym]{long-short-user}
+% na lista: expansao com inicial maiuscula e o campo user1 (se houver) em
+% italico na linha de baixo (\glsxtrpostdescacronym pode ser redefinido)
+\glssetcategoryattribute{acronym}{glossdesc}{firstuc}
+\newcommand\gmap@postdescuser{%
+  \ifglshasfield{\glsxtruserfield}{\glscurrententrylabel}%
+    {\newline\textit{\glscurrentfieldvalue}}{}}
+\csdef{glsxtrpostdescacronym}{\gmap@postdescuser}
+\csdef{glsxtrpostdescabbreviation}{\gmap@postdescuser}
+
+% abreviaturas (et al., p., fig.): sempre so a forma curta no texto
+\setabbreviationstyle[abreviatura]{short-nolong}
+% "et al." no fim da frase nao vira "et al.."
+\glssetcategoryattribute{abreviatura}{discardperiod}{true}
+
+\newcommand\sigla[4][]{\newacronym[#1]{#2}{#3}{#4}}
+\newcommand\abreviatura[4][]{\newabbreviation[category=abreviatura,#1]{#2}{#3}{#4}}
+\newcommand\simbolo[4][]{\glsxtrnewsymbol[description={#4},#1]{#2}{#3}}
+\newcommand\termo[4][]{\newglossaryentry{#2}{name={#3},description={#4},#1}}
+
+% sigla/simbolo a esquerda, descricao a direita, alinhado a margem
+\newglossarystyle{gmap}{%
+  \setglossarystyle{long}%
+  \renewenvironment{theglossary}%
+    {\setlength{\LTleft}{0pt}\setlength{\LTright}{\fill}%
+     \begin{longtable}{@{}l@{\hspace{1.5em}}p{\glsdescwidth}@{}}}%
+    {\end{longtable}}}
+% glossario: "Termo: definicao." (inicial maiuscula na lista), em
+% paragrafos com recuo pendente (sem \item: o nameref tenta expandir o
+% rotulo do \item, o que quebra com os nomes do glossaries-extra)
+\newglossarystyle{gmaplista}{%
+  \setglossarystyle{list}%
+  \renewenvironment{theglossary}%
+    {\par\setlength{\parindent}{0pt}\setlength{\parskip}{.5\baselineskip}}%
+    {\par}%
+  \renewcommand*{\glossaryheader}{}%
+  \renewcommand*{\glsgroupheading}[1]{}%
+  \renewcommand*{\glsgroupskip}{}%
+  \renewcommand*{\glossentry}[2]{%
+    \par\hangindent=1.5em\hangafter=1
+    \textbf{\glsentryitem{##1}\glstarget{##1}{\Glossentryname{##1}}:}\space
+    \glossentrydesc{##1}\glspostdescription\par}%
+  \renewcommand*{\subglossentry}[3]{\glossentry{##2}{##3}}}
+
+% titulos: pre-textual (fora do sumario, como as listas do abntex2) e
+% pos-textual (no sumario, sem numero)
+\newcommand\gmap@cab@pre[1]{\pretextualchapter{#1}}
+\newcommand\gmap@cab@pos[1]{%
+  \chapter*{#1}\phantomsection
+  \addcontentsline{toc}{chapter}{\texorpdfstring{\MakeTextUppercase{#1}}{#1}}}
+
+% #1 tipo, #2 titulo, #3 ordem, #4 estilo, #5 titulo (\gmap@cab@...)
+% (nada e' impresso se nenhum item do tipo foi usado no texto)
+\newcommand\gmap@lista[5]{%
+  \ifcsundef{@glsref@#1}{}{%
+    \begingroup
+      \renewcommand*{\glossarysection}[2][]{#5{##2}}%
+      \setlength{\glsdescwidth}{0.72\linewidth}%
+      \printnoidxglossary[type=#1,title={#2},sort=#3,style=#4]%
+    \endgroup}}
+
+% cada lista sai uma vez so (a automatica ou a do usuario); com a opcao
+% sem<lista>, nunca sai (sem aviso)
+\newcommand\gmap@umavez[3]{%
+  \ifcsdef{gmap@sem@#1}{\csgdef{gmap@feito@#1}{}}{\gmap@umavez@{#1}{#2}{#3}}}
+\newcommand\gmap@umavez@[3]{%
+  \ifcsdef{gmap@feito@#1}%
+    {\PackageWarning{gmap-ufrgs}{\string#2 already printed, ignored}}%
+    {\csgdef{gmap@feito@#1}{}#3}}
+% #1 titulo (\gmap@cab@pre ou \gmap@cab@pos)
+\newcommand\gmap@imprimirsiglas[1]{\gmap@umavez{siglas}{\imprimirsiglas}%
+  {\gmap@lista{\glsxtrabbrvtype}{\listadesiglasname}{standard}{gmap}{#1}}}
+% simbolos na ordem em que aparecem no texto (ABNT NBR 14724)
+\newcommand\gmap@imprimirsimbolos[1]{\gmap@umavez{simbolos}{\imprimirsimbolos}%
+  {\gmap@lista{symbols}{\listadesimbolosname}{use}{gmap}{#1}}}
+\newcommand\gmap@imprimirglossario{\gmap@umavez{glossario}{\imprimirglossario}%
+  {\gmap@lista{\glsdefaulttype}{\gmap@glossarioname}{standard}{gmaplista}{\gmap@cab@pos}}}
+% classico: as listas de simbolos e de siglas e o glossario saem sempre no
+% fim do documento (depois das referencias, apendices e anexos), nessa
+% ordem e no sumario; \imprimirsiglas, \imprimirsimbolos e
+% \imprimirglossario no texto sao ignorados
+\ifgmap@classico
+  \newcommand\imprimirsiglas{}
+  \newcommand\imprimirsimbolos{}
+  \newcommand\imprimirglossario{}
+\else
+  \newcommand\imprimirsiglas{\gmap@imprimirsiglas\gmap@cab@pre}
+  \newcommand\imprimirsimbolos{\gmap@imprimirsimbolos\gmap@cab@pre}
+  \let\imprimirglossario\gmap@imprimirglossario
+\fi
+\AddToHook{enddocument}{%
+  \ifgmap@classico
+    \ifcsdef{gmap@feito@simbolos}{}{\gmap@imprimirsimbolos\gmap@cab@pos}%
+    \ifcsdef{gmap@feito@siglas}{}{\gmap@imprimirsiglas\gmap@cab@pos}%
+  \fi
+  \ifcsdef{gmap@feito@glossario}{}{\gmap@imprimirglossario}%
+  \ifcsdef{gmap@feito@siglas}{}{\ifcsundef{@glsref@\glsxtrabbrvtype}{}{%
+    \PackageWarningNoLine{gmap-ufrgs}{Acronyms used but no \string\imprimirsiglas}}}%
+  \ifcsdef{gmap@feito@simbolos}{}{\ifcsundef{@glsref@symbols}{}{%
+    \PackageWarningNoLine{gmap-ufrgs}{Symbols used but no \string\imprimirsimbolos}}}}
+
+%---------------------------------------------------------------------
+% Elementos pre-textuais automaticos (perfil classico, ou opcao
+% pretextualautomatico): no \begin{document} saem
+%   capa, folha de controle (so se houver \verificador, \aprovador ou a
+%   opcao confidencial), sumario e listas de siglas e de simbolos (se
+%   usadas), e o documento ja comeca na parte textual.
+% classico: so o sumario (as listas vao para o fim do documento);
+% abnt: listas antes do sumario (ABNT).
+% Documentos antigos que ainda tem \imprimircapa, \pdfbookmark{...}{toc},
+% \tableofcontents* e \textual continuam compilando: esses comandos sao
+% ignorados (com aviso). Para montar os pre-textuais a mao (resumo,
+% lista de figuras...), use a opcao pretextualmanual.
+%---------------------------------------------------------------------
+\let\gmap@tableofcontents\tableofcontents
+\newcommand\gmap@sumario{%
+  \clearpage% o sumario do memoir nao comeca pagina nova sozinho
+  \pdfbookmark[0]{\contentsname}{gmap-sumario}%
+  \gmap@tableofcontents*%
+  \cleardoublepage}
+\newcommand\gmap@ignorado[1]{%
+  \PackageWarning{gmap-ufrgs}{\string#1 ignored: the pre-textual\MessageBreak
+    elements are printed automatically. Remove it,\MessageBreak
+    or use the class option pretextualmanual}}
+\newif\ifgmap@folha
+\newcommand\gmap@pretextual@auto{%
+  \pretextual
+  \imprimircapa
+  \gmap@folhafalse
+  \ifgmap@conf\gmap@folhatrue\fi
+  \ifcsdef{gmap@v@nome}{\gmap@folhatrue}{}%
+  \ifcsdef{gmap@p@nome}{\gmap@folhatrue}{}%
+  \ifgmap@folha\imprimirfolhadecontrole\fi
+  \ifgmap@classico
+    \gmap@sumario% listas: no fim do documento
+  \else
+    \imprimirsiglas\imprimirsimbolos\gmap@sumario
+  \fi
+  \textual
+  % o que ja saiu nao sai de novo se estiver escrito no documento
+  \gdef\imprimircapa{\gmap@ignorado{\imprimircapa}}%
+  \ifgmap@folha
+    \gdef\imprimirfolhadecontrole{\gmap@ignorado{\imprimirfolhadecontrole}}\fi
+  \gdef\tableofcontents{\@ifstar{\gmap@ignorado{\tableofcontents}}%
+                                {\gmap@ignorado{\tableofcontents}}}%
+  \global\let\gmap@pdfbookmark@orig\pdfbookmark
+  \gdef\pdfbookmark{\@ifnextchar[\gmap@pdfbookmark{\gmap@pdfbookmark[0]}}%
+  \gdef\textual{}}
+% \pdfbookmark{...}{toc} dos documentos antigos marcaria o sumario de novo
+\def\gmap@pdfbookmark[#1]#2#3{%
+  \ifstrequal{#3}{toc}{}{\gmap@pdfbookmark@orig[#1]{#2}{#3}}}
+\ifgmap@auto
+  \AddToHook{begindocument/end}{\gmap@pretextual@auto}
 \fi
 
 \endinput
