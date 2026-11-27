@@ -57,12 +57,12 @@ macros/latex/contrib/gmap-ufrgs
 
 **Announcement** — opcional. La v0.1 trae funciones nuevas; si quieres anunciarla:
 ```
-Version 0.1 removes the institutional logos from the package (now entirely under the LPPL 1.3c+) and adds automatic front matter (cover, control sheet, table of contents), lists of acronyms and symbols and a glossary based on glossaries-extra (no external tool), signature blocks that can be deferred to the end of the document, and the optional package gmap-figuras for subfigures split across pages and figure series.
+Version 0.1 removes the institutional logos from the package (now entirely under the LPPL 1.3c+) and adds automatic front matter (cover, control sheet, table of contents), lists of acronyms and symbols and a glossary based on glossaries-extra (no external tool), signature blocks that can be deferred to the end of the document, cross-reference commands (\reffig), siunitx and todonotes loaded by the class, uppercase chapter titles, and the optional package gmap-figuras for subfigures split across pages and figure series.
 ```
 
 **Administrative notes** (interno)
 ```
-Update to v0.1, following your note on v0.0: the two institutional logos (gmap-logo-ufrgs.png, gmap-logo-gmap.pdf) have been removed from the package, so it is now entirely under the LPPL 1.3c+. Please change the license in the catalogue from "lppl1.3c other-nonfree" to "lppl1.3c" and, if possible, include the package in TeX Live. The logos remain available to GMAp/UFRGS users through the Git repository; the class works without them (warning, blank space). As suggested, the LPPL text is no longer included; the README states the license.
+Update to v0.1, following your note on v0.0: the two institutional logos (in v0.0 named gmap-logo-ufrgs.png and gmap-logo-gmap.pdf; now fig/logo-example-01.pdf and fig/logo-example-02.pdf) have been removed from the package, so it is now entirely under the LPPL 1.3c+. Please change the license in the catalogue from "lppl1.3c other-nonfree" to "lppl1.3c" and, if possible, include the package in TeX Live. The logos remain available to GMAp/UFRGS users through the Git repository; the class works without them (warning, blank space). As suggested, the LPPL text is no longer included; the README states the license.
 ```
 
 **License type**
