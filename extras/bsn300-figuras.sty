@@ -10,6 +10,7 @@
 %%   \AbacoB{<modelo>}{<capacete>}         = \Abaco[2,1]{...}{...}
 %%   \RazaoCarga{<modelo>}{<capacete>}
 %% No texto (mesma tabela de alturas):
+%%   \bsn{<modelo>}                        so o nome: BSN300-30
 %%   \ModeloBSN{<modelo>}                  modelo padrao para os comandos abaixo
 %%   \Capacete[<modelo>]{<capacete>}       \gls{hc2} (636,25 mm); * = sem \gls
 %%   \AlturaCapacete[<modelo>]{<capacete>} 636,25 mm
@@ -249,5 +250,11 @@
       }
   }
 \ExplSyntaxOff
+
+%---------------------------------------------------------------------
+% Nome do modelo, so o texto: \bsn{30} -> BSN300-30
+%---------------------------------------------------------------------
+\NewDocumentCommand \bsn { m }
+  { \mbox{BSN300-#1} }
 
 \endinput
